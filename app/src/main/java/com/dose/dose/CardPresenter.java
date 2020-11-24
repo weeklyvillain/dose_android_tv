@@ -5,9 +5,11 @@ import android.graphics.drawable.Drawable;
 import androidx.leanback.widget.ImageCardView;
 import androidx.leanback.widget.Presenter;
 import androidx.core.content.ContextCompat;
+import androidx.leanback.widget.TitleView;
 
 import android.util.Log;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
@@ -17,20 +19,8 @@ import com.bumptech.glide.Glide;
  */
 public class CardPresenter extends Presenter {
     private static final String TAG = "CardPresenter";
-
-    private static final int CARD_WIDTH = 500;
-    private static final int CARD_HEIGHT = 200;
-    private static int sSelectedBackgroundColor;
-    private static int sDefaultBackgroundColor;
     private Drawable mDefaultCardImage;
 
-    private static void updateCardBackgroundColor(ImageCardView view, boolean selected) {
-        int color = selected ? sSelectedBackgroundColor : sDefaultBackgroundColor;
-        // Both background colors should be set because the view"s background is temporarily visible
-        // during animations.
-        view.setBackgroundColor(color);
-        view.findViewById(R.id.info_field).setBackgroundColor(color);
-    }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent) {
@@ -44,10 +34,20 @@ public class CardPresenter extends Presenter {
         Movie movie = (Movie) item;
         MovieCardView cardView = (MovieCardView) viewHolder.view;
 
+        cardView.setOnFocusChangeListener((view, hasFocus) -> {
+            if(hasFocus) {
+                cardView.setTitleText(movie.getTitle());
+            } else {
+                cardView.setTitleText("");
+            }
+        });
+
+
         Log.d(TAG, "onBindViewHolder");
         if (movie.getCardImageUrl() != null) {
-            cardView.setTitleText(movie.getTitle());
+            cardView.setTitleText("");
             //cardView.setContentText(movie.getStudio());
+
             Glide.with(viewHolder.view.getContext())
                     .load(movie.getCardImageUrl())
                     .centerCrop()

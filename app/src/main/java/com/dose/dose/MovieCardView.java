@@ -55,6 +55,10 @@ public class MovieCardView extends BaseCardView {
         return mainImageView;
     }
 
+    public TextView get_titleView() {
+        return _titleView;
+    }
+
     public void setMainImageView(ImageView mainImageView) {
         this.mainImageView = mainImageView;
     }
