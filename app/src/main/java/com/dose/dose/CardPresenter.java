@@ -37,8 +37,10 @@ public class CardPresenter extends Presenter {
         cardView.setOnFocusChangeListener((view, hasFocus) -> {
             if(hasFocus) {
                 cardView.setTitleText(movie.getTitle());
+                cardView.setContentText(movie.getStudio());
             } else {
                 cardView.setTitleText("");
+                cardView.setContentText("");
             }
         });
 
@@ -46,7 +48,7 @@ public class CardPresenter extends Presenter {
         Log.d(TAG, "onBindViewHolder");
         if (movie.getCardImageUrl() != null) {
             cardView.setTitleText("");
-            //cardView.setContentText(movie.getStudio());
+            cardView.setContentText("");
 
             Glide.with(viewHolder.view.getContext())
                     .load(movie.getCardImageUrl())

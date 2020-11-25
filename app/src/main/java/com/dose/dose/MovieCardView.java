@@ -13,6 +13,7 @@ import androidx.leanback.widget.BaseCardView;
 public class MovieCardView extends BaseCardView {
 
     private TextView _titleView;
+    private TextView contentText;
     private ImageView mainImageView;
 
 
@@ -32,6 +33,7 @@ public class MovieCardView extends BaseCardView {
 
         mainImageView = (ImageView) findViewById(R.id.backdrop);
         _titleView = (TextView) findViewById(R.id.title);
+        contentText = (TextView) findViewById(R.id.contentText);
     }
 
     /**
@@ -51,15 +53,22 @@ public class MovieCardView extends BaseCardView {
         _titleView.setText(text);
     }
 
+    public void setContentText(CharSequence text) {
+        if (contentText == null) {
+            return;
+        }
+        contentText.setText(text);
+    }
+
     public ImageView getMainImageView() {
         return mainImageView;
     }
 
-    public TextView get_titleView() {
+    /*public TextView get_titleView() {
         return _titleView;
     }
 
     public void setMainImageView(ImageView mainImageView) {
         this.mainImageView = mainImageView;
-    }
+    }*/
 }
