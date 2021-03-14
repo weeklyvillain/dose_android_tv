@@ -33,6 +33,8 @@ import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 
+import org.json.JSONException;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -73,7 +75,11 @@ public class VideoDetailsFragment extends DetailsFragment {
             mAdapter = new ArrayObjectAdapter(mPresenterSelector);
             setupDetailsOverviewRow();
             setupDetailsOverviewRowPresenter();
-            setupRelatedMovieListRow();
+            try {
+                setupRelatedMovieListRow();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             setAdapter(mAdapter);
             initializeBackground(mSelectedMovie);
             setOnItemViewClickedListener(new ItemViewClickedListener());
@@ -86,7 +92,7 @@ public class VideoDetailsFragment extends DetailsFragment {
     private void initializeBackground(Movie data) {
         mDetailsBackground.enableParallax();
         Glide.with(getActivity())
-                .load(data.getBackgroundImageUrl())
+                .load(data.getCardImageUrl())
                 .asBitmap()
                 .centerCrop()
                 .error(R.drawable.default_background)
@@ -127,9 +133,8 @@ public class VideoDetailsFragment extends DetailsFragment {
         actionAdapter.add(
                 new Action(
                         ACTION_WATCH_TRAILER,
-                        getResources().getString(R.string.watch_trailer_1),
-                        getResources().getString(R.string.watch_trailer_2)));
-        actionAdapter.add(
+                        "Spela"));
+        /*actionAdapter.add(
                 new Action(
                         ACTION_RENT,
                         getResources().getString(R.string.rent_1),
@@ -139,6 +144,7 @@ public class VideoDetailsFragment extends DetailsFragment {
                         ACTION_BUY,
                         getResources().getString(R.string.buy_1),
                         getResources().getString(R.string.buy_2)));
+        */
         row.setActionsAdapter(actionAdapter);
 
         mAdapter.add(row);
@@ -174,7 +180,7 @@ public class VideoDetailsFragment extends DetailsFragment {
         mPresenterSelector.addClassPresenter(DetailsOverviewRow.class, detailsPresenter);
     }
 
-    private void setupRelatedMovieListRow() {
+    private void setupRelatedMovieListRow() throws JSONException {
         String subcategories[] = {getString(R.string.related_movies)};
         List<Movie> list = MovieList.getList();
 

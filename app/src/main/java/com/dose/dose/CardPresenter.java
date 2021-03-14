@@ -37,7 +37,7 @@ public class CardPresenter extends Presenter {
         cardView.setOnFocusChangeListener((view, hasFocus) -> {
             if(hasFocus) {
                 cardView.setTitleText(movie.getTitle());
-                cardView.setContentText(movie.getStudio());
+                cardView.setContentText(movie.getDescription());
             } else {
                 cardView.setTitleText("");
                 cardView.setContentText("");

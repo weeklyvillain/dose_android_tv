@@ -34,6 +34,8 @@ import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 
+import org.json.JSONException;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
@@ -64,7 +66,11 @@ public class MainFragment extends BrowseFragment {
 
         setupUIElements();
 
-        loadRows();
+        try {
+            loadRows();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         setupEventListeners();
     }
@@ -78,7 +84,7 @@ public class MainFragment extends BrowseFragment {
         }
     }
 
-    private void loadRows() {
+    private void loadRows() throws JSONException {
         List<Movie> list = MovieList.setupMovies();
 
         ArrayObjectAdapter rowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
@@ -186,7 +192,7 @@ public class MainFragment extends BrowseFragment {
 
                 Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
                         getActivity(),
-                        ((ImageCardView) itemViewHolder.view).getMainImageView(),
+                        itemViewHolder.view,
                         DetailsActivity.SHARED_ELEMENT_NAME)
                         .toBundle();
                 getActivity().startActivity(intent, bundle);

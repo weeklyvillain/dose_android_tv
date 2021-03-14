@@ -1,29 +1,39 @@
 package com.dose.dose;
 
+import android.util.Log;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public final class MovieList {
     public static final String MOVIE_CATEGORY[] = {
-            "Category Zero",
-            "Category One",
-            "Category Two",
-            "Category Three",
-            "Category Four",
-            "Category Five",
+            "Pågående serier",
+            "Pågående filmer",
+            "Nya serier",
+            "Pågående filmer",
+            "övrigt",
+            "annat",
     };
 
     private static List<Movie> list;
     private static long count = 0;
 
-    public static List<Movie> getList() {
+    public static List<Movie> getList() throws JSONException {
         if (list == null) {
             list = setupMovies();
         }
         return list;
     }
 
-    public static List<Movie> setupMovies() {
+    public static List<Movie> setupMovies() throws JSONException {
         list = new ArrayList<>();
         String title[] = {
                 "Back To The Future",
@@ -47,11 +57,11 @@ public final class MovieList {
                 "With the world now aware of his identity as Iron Man, Tony Stark must contend with both his declining health and a vengeful mad man with ties to his father's legacy. "
         };
         String videoUrl[] = {
-                "http://commondatastorage.googleapis.com/android-tv/Sample%20videos/Zeitgeist/Zeitgeist%202010_%20Year%20in%20Review.mp4",
-                "https://www.mp4point.com/downloads/ede99d243af0.mp4", // IRON MAN TRAILER
-                "http://commondatastorage.googleapis.com/android-tv/Sample%20videos/April%20Fool's%202013/Introducing%20Gmail%20Blue.mp4",
-                "http://commondatastorage.googleapis.com/android-tv/Sample%20videos/April%20Fool's%202013/Introducing%20Google%20Fiber%20to%20the%20Pole.mp4",
-                "http://commondatastorage.googleapis.com/android-tv/Sample%20videos/April%20Fool's%202013/Introducing%20Google%20Nose.mp4"
+                "https://movietrailers.apple.com/movies/disney/raya-and-the-last-dragon/raya-and-the-last-dragon-trailer-1_h480p.mov",
+                "https://movietrailers.apple.com/movies/disney/raya-and-the-last-dragon/raya-and-the-last-dragon-trailer-1_h480p.mov", // IRON MAN TRAILER
+                "https://movietrailers.apple.com/movies/disney/raya-and-the-last-dragon/raya-and-the-last-dragon-trailer-1_h480p.mov",
+                "https://movietrailers.apple.com/movies/disney/raya-and-the-last-dragon/raya-and-the-last-dragon-trailer-1_h480p.mov",
+                "https://movietrailers.apple.com/movies/disney/raya-and-the-last-dragon/raya-and-the-last-dragon-trailer-1_h480p.mov"
         };
         String bgImageUrl[] = {
                 "http://commondatastorage.googleapis.com/android-tv/Sample%20videos/Zeitgeist/Zeitgeist%202010_%20Year%20in%20Review/bg.jpg",
@@ -63,12 +73,12 @@ public final class MovieList {
         String cardImageUrl[] = {
                 "https://ae01.alicdn.com/kf/HTB1FovjaYr1gK0jSZR0q6zP8XXa2/7x5ft-Back-to-The-Future-Car-Race-Track-Clouds-Custom-Photo-Studio-Background-Backdrop-Vinyl-220cm.jpg",
                 "https://comicattractions.com/wp-content/uploads/2019/03/iron-man-backdrop.jpg",
-                "https://backgrounds4k.net/wp-content/uploads/2016/01/The-Flash-backgrounds-ultra-hd.jpg",
+                "https://wallpaperaccess.com/full/708457.jpg",
                 "https://archziner.com/wp-content/uploads/2020/02/poster-for-deathly-hallows-part-two-movie-wallpaper-harry-potter-battle-of-hogwarts-450x280.jpg",
                 "https://wallpaperaccess.com/full/464869.jpg"
         };
 
-        for (int index = 0; index < title.length; index++) {
+        /*for (int index = 0; index < title.length; index++) {
             list.add(
                     buildMovieInfo(
                             title[index],
@@ -77,26 +87,37 @@ public final class MovieList {
                             videoUrl[index],
                             cardImageUrl[index],
                             bgImageUrl[index]));
-        }
+        }*/
 
-        return list;
+        SendPostRequest spr = new SendPostRequest();
+        JSONObject JsonObj = spr.sendPost();
+        JSONArray jArr = JsonObj.getJSONArray("result");
+        String JWT = JsonObj.getString("token");
+        if (jArr != null) {
+            for (int i=0;i<jArr.length();i++) {
+                Movie obj = buildMovieInfo(
+                        jArr.getJSONObject(i).getString("id"),
+                        jArr.getJSONObject(i).getString("title"),
+                        jArr.getJSONObject(i).getString("overview"),
+                        jArr.getJSONObject(i).getString("release_date"),
+                        jArr.getJSONObject(i).getJSONArray("images"),
+                        JWT);
+
+                list.add(obj);
+            }
+        }
+        Log.i("JSON ", JsonObj.toString());
+        return  list;
     }
 
     private static Movie buildMovieInfo(
+            String id,
             String title,
             String description,
-            String studio,
-            String videoUrl,
-            String cardImageUrl,
-            String backgroundImageUrl) {
-        Movie movie = new Movie();
-        movie.setId(count++);
-        movie.setTitle(title);
-        movie.setDescription(description);
-        movie.setStudio(studio);
-        movie.setCardImageUrl(cardImageUrl);
-        movie.setBackgroundImageUrl(backgroundImageUrl);
-        movie.setVideoUrl(videoUrl);
+            String release,
+            JSONArray cardImageUrl,
+            String JWT) {
+        Movie movie = new Movie(id, title, description,release , cardImageUrl, JWT);
         return movie;
     }
 }

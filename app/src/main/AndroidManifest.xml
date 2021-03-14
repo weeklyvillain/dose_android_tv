@@ -20,10 +20,10 @@
         android:theme="@style/Theme.Dose">
         <activity
             android:name=".MainActivity"
-            android:banner="@drawable/app_icon_your_company"
-            android:icon="@drawable/app_icon_your_company"
+            android:banner="@drawable/dose"
+            android:icon="@drawable/dose"
             android:label="@string/title_activity_main"
-            android:logo="@drawable/app_icon_your_company"
+            android:logo="@drawable/dose"
             android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
