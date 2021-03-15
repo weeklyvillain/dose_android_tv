@@ -73,7 +73,7 @@ public class Movie implements Serializable {
     }
 
     public String getCardImageUrl() {
-        Log.i("JsonArr", images.toString());
+        //Log.i("JsonArr", images.toString());
 
         Gson g = new Gson();
         JsonArray arr = g.fromJson(images, JsonArray.class);
@@ -85,8 +85,8 @@ public class Movie implements Serializable {
             JsonObject jObj = (JsonObject) arr.get(i);
             active = jObj.get("active").getAsBoolean();
             type = jObj.get("type").getAsString();
-            Log.i("getBackgroundImageUrl Active", active.toString());
-            Log.i("getBackgroundImageUrl Type", type);
+            //Log.i("getBackgroundImageUrl Active", active.toString());
+            //Log.i("getBackgroundImageUrl Type", type);
             if(active) {
                 imageURL = "https://image.tmdb.org/t/p/w500" + jObj.get("path").getAsString();
             }
@@ -106,8 +106,8 @@ public class Movie implements Serializable {
             JsonObject jObj = (JsonObject) arr.get(i);
             active = jObj.get("active").getAsBoolean();
             type = jObj.get("type").getAsString();
-            Log.i("getBackgroundImageUrl Active", active.toString());
-            Log.i("getBackgroundImageUrl Type", type);
+            //Log.i("getBackgroundImageUrl Active", active.toString());
+            //Log.i("getBackgroundImageUrl Type", type);
             if(active) {
                 imageURL = "https://image.tmdb.org/t/p/original" + jObj.get("path").getAsString();
             }
