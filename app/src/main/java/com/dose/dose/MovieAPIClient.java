@@ -1,6 +1,10 @@
 package com.dose.dose;
 
+import android.util.Log;
+
 import com.google.gson.JsonObject;
+
+import org.json.JSONObject;
 
 public class MovieAPIClient extends DoseAPIClient {
 
@@ -29,5 +33,11 @@ public class MovieAPIClient extends DoseAPIClient {
     @Override
     public JsonObject getOngoing() {
         return null;
+    }
+
+    @Override
+    public int getDuration(String id) throws Exception {
+        String url = this.movieServerURL + String.format("/api/video/%s/getDuration?type=movie&token=%s", id, super.getMovieJWT());
+        return super.customGet(url, new JSONObject()).getInt("duration");
     }
 }

@@ -13,6 +13,8 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import javax.net.ssl.HttpsURLConnection;
+
 public abstract class DoseAPIClient {
 /*
     Login (har implementation)
@@ -37,6 +39,7 @@ public abstract class DoseAPIClient {
     public abstract String getPlaybackURL(String id, String startPos, String res);
     public abstract JsonObject getNewContent();
     public abstract JsonObject getOngoing();
+    public abstract int getDuration(String id) throws Exception;
 
     protected DoseAPIClient(String url) {
         this.mainServerURL = url;
@@ -106,13 +109,37 @@ public abstract class DoseAPIClient {
         return new JSONObject();
     }
 
+
     public JSONObject customPost(String url, JSONObject body) {
 
         return new JSONObject();
     }
 
     public JSONObject customGet(String url, JSONObject headers) {
+        try {
+            URL reqUrl = new URL(url);
+            HttpsURLConnection conn = (HttpsURLConnection) reqUrl.openConnection();
+            conn.setRequestMethod("GET");
+            String responseMsg = "";
+            InputStream in = conn.getInputStream();
 
+            StringBuffer respDataBuf = new StringBuffer();
+            respDataBuf.setLength(0);
+            int b = -1;
+
+            while((b = in.read()) != -1) {
+                respDataBuf.append((char)b);
+            }
+            responseMsg = respDataBuf.toString();
+            JSONObject jsonObject = new JSONObject(new JSONTokener(responseMsg));
+            Log.i("STATUS", String.valueOf(conn.getResponseCode()));
+            Log.i("MSG" , conn.getResponseMessage());
+            conn.disconnect();
+
+            return jsonObject;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return new JSONObject();
     }
 
