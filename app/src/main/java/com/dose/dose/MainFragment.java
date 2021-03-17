@@ -1,6 +1,8 @@
 package com.dose.dose;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -109,7 +111,7 @@ public class MainFragment extends BrowseFragment {
         ArrayObjectAdapter gridRowAdapter = new ArrayObjectAdapter(mGridPresenter);
         gridRowAdapter.add(getResources().getString(R.string.grid_view));
         gridRowAdapter.add(getString(R.string.error_fragment));
-        gridRowAdapter.add(getResources().getString(R.string.personal_settings));
+        gridRowAdapter.add("Logout!");
         rowsAdapter.add(new ListRow(gridHeader, gridRowAdapter));
 
         setAdapter(rowsAdapter);
@@ -200,8 +202,13 @@ public class MainFragment extends BrowseFragment {
                 if (((String) item).contains(getString(R.string.error_fragment))) {
                     Intent intent = new Intent(getActivity(), BrowseErrorActivity.class);
                     startActivity(intent);
-                } else {
-                    Toast.makeText(getActivity(), ((String) item), Toast.LENGTH_SHORT).show();
+                } else if(((String) item).contains("Logout!")) {
+                    Toast.makeText(getActivity(), "Logging Out", Toast.LENGTH_SHORT).show();
+                    SharedPreferences settings = getActivity().getSharedPreferences("UserInfo", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = settings.edit();
+                    editor.remove("JWT");
+                    editor.remove("ServerURL");
+                    editor.commit();
                 }
             }
         }

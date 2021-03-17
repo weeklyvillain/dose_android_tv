@@ -45,6 +45,11 @@ public abstract class DoseAPIClient {
         this.mainServerURL = url;
     }
 
+    protected DoseAPIClient(String url, String JWT) {
+        this.mainJWT = JWT;
+        this.mainServerURL = url;
+    }
+
     protected DoseAPIClient(String url, String mainJWT, String movieJWT) {
         this.mainServerURL = url;
         this.mainJWT = mainJWT;
