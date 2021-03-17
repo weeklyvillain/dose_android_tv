@@ -36,7 +36,7 @@ public abstract class DoseAPIClient {
     private String movieJWT;
     private String mainServerURL;
 
-    public abstract String getPlaybackURL(String id, String startPos, String res);
+    public abstract String getPlaybackURL(String id, int startPos, String res);
     public abstract JsonObject getNewContent();
     public abstract JsonObject getOngoing();
     public abstract int getDuration(String id) throws Exception;

@@ -11,6 +11,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.CountDownLatch;
 
+import javax.net.ssl.HttpsURLConnection;
+
 public final class SendPostRequest {
     public final JSONObject sendPost() {
         final CountDownLatch latch = new CountDownLatch(1);
@@ -21,7 +23,7 @@ public final class SendPostRequest {
                 try {
                     // Retrive Token from main server
                     URL url = new URL("https://vnc.fgbox.appboxes.co/dose/api/auth/login");
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
                     conn.setRequestMethod("POST");
                     conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
                     conn.setRequestProperty("Accept","application/json");
@@ -61,7 +63,7 @@ public final class SendPostRequest {
 
                     // get servers from main server
                     url = new URL("https://vnc.fgbox.appboxes.co/dose/api/servers/getServers");
-                    conn = (HttpURLConnection) url.openConnection();
+                    conn = (HttpsURLConnection) url.openConnection();
                     conn.setRequestMethod("POST");
                     conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
                     conn.setRequestProperty("Accept","application/json");
@@ -100,7 +102,7 @@ public final class SendPostRequest {
 
                     // validate movie server
                     url = new URL("https://vnc.fgbox.appboxes.co/doseserver/api/auth/validate");
-                    conn = (HttpURLConnection) url.openConnection();
+                    conn = (HttpsURLConnection) url.openConnection();
                     conn.setRequestMethod("POST");
                     conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
                     conn.setRequestProperty("Accept","application/json");
@@ -139,7 +141,7 @@ public final class SendPostRequest {
 
                     // get movies from movie server
                     url = new URL("https://vnc.fgbox.appboxes.co/doseserver/api/movies/list?orderby=release_date&limit=5&token=" + MovieJWT);
-                    conn = (HttpURLConnection) url.openConnection();
+                    conn = (HttpsURLConnection) url.openConnection();
                     conn.setRequestMethod("GET");
                     conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
                     conn.setRequestProperty("Accept","application/json");

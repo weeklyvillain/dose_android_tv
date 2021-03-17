@@ -21,8 +21,8 @@ public class MovieAPIClient extends DoseAPIClient {
     }
 
     @Override
-    public String getPlaybackURL(String id, String startPos, String res) {
-        return this.movieServerURL + String.format("/api/video/%s?type=movie&token=%s&start=%s&quality=%s", id, super.getMovieJWT(), startPos, res);
+    public String getPlaybackURL(String id, int startPos, String res) {
+        return this.movieServerURL + String.format("/api/video/%s?type=movie&token=%s&start=%d&quality=%s", id, super.getMovieJWT(), startPos, res);
     }
 
     @Override

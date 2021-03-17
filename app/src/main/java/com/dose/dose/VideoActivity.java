@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -36,9 +37,9 @@ public class VideoActivity extends Activity {
     private boolean controlsVisible = false;
 
     private int timeAtSeek = 0;
-    private Handler currentTimeHandler = new Handler();
+    private final Handler currentTimeHandler = new Handler();
 
-    private Runnable currentTimeUpdater = new Runnable() {
+    private final Runnable currentTimeUpdater = new Runnable() {
         @Override
         public void run() {
             int playedInSeconds = Math.toIntExact(timeAtSeek + player.getCurrentPosition() / 1000);
@@ -54,6 +55,13 @@ public class VideoActivity extends Activity {
             currentTime.setText(String.format("%d:%d:%d", hours,minutes,seconds));
             currentTime.invalidate();
             currentTimeHandler.postDelayed(this, 1000);
+        }
+    };
+
+    private final Runnable seekRunnable = new Runnable() {
+        @Override
+        public void run() {
+            seek(seekBar.getProgress());
         }
     };
 
@@ -85,6 +93,7 @@ public class VideoActivity extends Activity {
                     int minutes = (duration / 60) % 60;
                     int seconds = duration % 60;
                     seekBar.setMax(duration);
+                    seekBar.setKeyProgressIncrement(10);
                     durationTextView.setText(String.format("%d:%d:%d", hours,minutes,seconds));
                     durationTextView.invalidate();
                 } catch (Exception e) {
@@ -101,7 +110,11 @@ public class VideoActivity extends Activity {
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
+                if (fromUser) {
+                    isSeeking = true;
+                    currentTimeHandler.removeCallbacks(seekRunnable);
+                    currentTimeHandler.postDelayed(seekRunnable, 2500);
+                }
             }
 
             @Override
@@ -111,14 +124,12 @@ public class VideoActivity extends Activity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                player.stop();
-                mediaItem = MediaItem.fromUri("https://vnc.fgbox.appboxes.co/doseserver/api/video/280?type=movie&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlZlemVsIiwidXNlcl9pZCI6IjEiLCJpYXQiOjE2MTU4MjMzMjIsImV4cCI6MTYxNjEyMzMyMn0.8MbofgLdiB6IEbJkJ3ej3ef0lb5ad2zjqeWtqUZAm8o&start=1000&quality=1080P");
-                player.setMediaItem(mediaItem);
-                player.prepare();
-                player.play();
-                isSeeking = false;
+
             }
+
         });
+
+
         //playVideo();
 
         player = new SimpleExoPlayer.Builder(this).build();
@@ -132,7 +143,7 @@ public class VideoActivity extends Activity {
             }
         });
 
-        mediaItem = MediaItem.fromUri("https://vnc.fgbox.appboxes.co/doseserver/api/video/280?type=movie&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlZlemVsIiwidXNlcl9pZCI6IjEiLCJpYXQiOjE2MTU5MTQxODUsImV4cCI6MTYxNjIxNDE4NX0.97PMAZ3lfGD5e0JtsE49O6pgsPisMoka_Dpf033QVzY&start=0&quality=1080P");
+        mediaItem = MediaItem.fromUri(movieAPIClient.getPlaybackURL(mSelectedMovie.getId(), 0, "1080P"));
         player.setMediaItem(mediaItem);
         player.prepare();
         player.play();
@@ -160,7 +171,16 @@ public class VideoActivity extends Activity {
         }
     }
 
-
-
+    // @param seekTo -> seekTo in seconds
+    private void seek(int seekTo) {
+        Log.i("SeekTo: ", String.valueOf(seekTo));
+        player.stop();
+        mediaItem = MediaItem.fromUri(movieAPIClient.getPlaybackURL(mSelectedMovie.getId(), seekTo, "1080P"));
+        player.setMediaItem(mediaItem);
+        player.prepare();
+        player.play();
+        timeAtSeek = seekTo;
+        isSeeking = false;
+    }
 
 }
