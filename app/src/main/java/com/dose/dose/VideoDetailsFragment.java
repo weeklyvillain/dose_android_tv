@@ -48,6 +48,8 @@ public class VideoDetailsFragment extends DetailsFragment {
     private static final int ACTION_WATCH_TRAILER = 1;
     private static final int ACTION_RENT = 2;
     private static final int ACTION_BUY = 3;
+    private static final int ACTION_RESUME = 4;
+
 
     private static final int DETAIL_THUMB_WIDTH = 274;
     private static final int DETAIL_THUMB_HEIGHT = 274;
@@ -92,7 +94,7 @@ public class VideoDetailsFragment extends DetailsFragment {
     private void initializeBackground(Movie data) {
         mDetailsBackground.enableParallax();
         Glide.with(getActivity())
-                .load(data.getCardImageUrl())
+                .load(data.getCardImageUrl(true))
                 .asBitmap()
                 .centerCrop()
                 .error(R.drawable.default_background)
@@ -114,7 +116,7 @@ public class VideoDetailsFragment extends DetailsFragment {
         int width = convertDpToPixel(getActivity().getApplicationContext(), DETAIL_THUMB_WIDTH);
         int height = convertDpToPixel(getActivity().getApplicationContext(), DETAIL_THUMB_HEIGHT);
         Glide.with(getActivity())
-                .load(mSelectedMovie.getCardImageUrl())
+                .load(mSelectedMovie.getPosterImage(true))
                 .centerCrop()
                 .error(R.drawable.default_background)
                 .into(new SimpleTarget<GlideDrawable>(width, height) {
@@ -134,17 +136,14 @@ public class VideoDetailsFragment extends DetailsFragment {
                 new Action(
                         ACTION_WATCH_TRAILER,
                         "Spela"));
-        /*actionAdapter.add(
-                new Action(
-                        ACTION_RENT,
-                        getResources().getString(R.string.rent_1),
-                        getResources().getString(R.string.rent_2)));
-        actionAdapter.add(
-                new Action(
-                        ACTION_BUY,
-                        getResources().getString(R.string.buy_1),
-                        getResources().getString(R.string.buy_2)));
-        */
+
+        if (mSelectedMovie.getWatchTime() > 0) {
+            actionAdapter.add(
+                    new Action(
+                            ACTION_RESUME,
+                            "Återuppta"));
+        }
+
         row.setActionsAdapter(actionAdapter);
 
         mAdapter.add(row);
@@ -181,6 +180,7 @@ public class VideoDetailsFragment extends DetailsFragment {
     }
 
     private void setupRelatedMovieListRow() throws JSONException {
+        /* TODO: GET RELATED MOVIES FROM SERVER
         String subcategories[] = {getString(R.string.related_movies)};
         List<Movie> list = MovieList.getList();
 
@@ -193,6 +193,7 @@ public class VideoDetailsFragment extends DetailsFragment {
         HeaderItem header = new HeaderItem(0, subcategories[0]);
         mAdapter.add(new ListRow(header, listRowAdapter));
         mPresenterSelector.addClassPresenter(ListRow.class, new ListRowPresenter());
+         */
     }
 
     private int convertDpToPixel(Context context, int dp) {

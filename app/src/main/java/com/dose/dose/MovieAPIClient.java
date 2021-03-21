@@ -42,9 +42,49 @@ public class MovieAPIClient extends DoseAPIClient {
         return result;
     }
 
+
+    public JSONArray getNewReleases() {
+        String url = this.movieServerURL + String.format("/api/movies/list?orderby=release_date&limit=20&token=%s", this.movieJWT);
+
+        JSONArray result;
+        try {
+            result = super.customGet(url, new JSONObject()).getJSONArray("result");
+        } catch(Exception e) {
+            e.printStackTrace();
+            result = new JSONArray();
+        }
+        Log.i("NEWRELEASES: ", result.toString());
+        return result;
+    }
+
     @Override
-    public JsonObject getOngoing() {
-        return null;
+    public JSONArray getOngoing() {
+        String url = this.movieServerURL + String.format("/api/movies/list/ongoing?limit=20&token=%s", this.movieJWT);
+
+        JSONArray result;
+        try {
+            result = super.customGet(url, new JSONObject()).getJSONArray("result");
+        } catch(Exception e) {
+            e.printStackTrace();
+            result = new JSONArray();
+        }
+        Log.i("ONGOING: ", result.toString());
+        return result;
+    }
+
+    @Override
+    public JSONArray getWatchlist() {
+        String url = this.movieServerURL + String.format("/api/movies/list/watchlist?limit=20&token=%s", this.movieJWT);
+
+        JSONArray result;
+        try {
+            result = super.customGet(url, new JSONObject()).getJSONArray("result");
+        } catch(Exception e) {
+            e.printStackTrace();
+            result = new JSONArray();
+        }
+        Log.i("MOVIEWATCHLIST: ", result.toString());
+        return result;
     }
 
     @Override

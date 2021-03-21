@@ -26,13 +26,15 @@ public class Movie implements Serializable {
     private String release_date;
     private String images;
     private String playBackUrl;
+    private int watchTime;
 
-    public Movie(String id, String title, String overview, String release_date, JSONArray images, String JWT) {
+    public Movie(String id, String title, String overview, String release_date, JSONArray images, String JWT, int watchTime) {
         this.id = id;
         this.title = title;
         this.overview = overview;
         this.release_date = release_date;
         this.images = String.valueOf(images);
+        this.watchTime = watchTime;
         this.playBackUrl = "https://vnc.fgbox.appboxes.co/doseserver/api/video/" + id+ "?type=movie&token=" + JWT + "&start=0&quality=720p";
     }
 
@@ -72,44 +74,41 @@ public class Movie implements Serializable {
         this.release_date = release_date;
     }
 
-    public String getCardImageUrl() {
-        //Log.i("JsonArr", images.toString());
+    public int getWatchTime() {
+        return watchTime;
+    }
 
+    public String getPosterImage(boolean originalQuality) {
         Gson g = new Gson();
         JsonArray arr = g.fromJson(images, JsonArray.class);
         String imageURL = "";
         Boolean active;
         String type;
         for (int i = 0; i < arr.size(); i++) {
-            //Log.i("getCardImageUrl", String.valueOf(images.get(i)));
             JsonObject jObj = (JsonObject) arr.get(i);
             active = jObj.get("active").getAsBoolean();
             type = jObj.get("type").getAsString();
-            //Log.i("getBackgroundImageUrl Active", active.toString());
-            //Log.i("getBackgroundImageUrl Type", type);
-            if(active) {
-                imageURL = "https://image.tmdb.org/t/p/w500" + jObj.get("path").getAsString();
+            Log.i("IMAGETYPE", type);
+            if(active && type.equals("POSTER")) {
+                imageURL = String.format("https://image.tmdb.org/t/p/%s/%s", originalQuality ? "original" : "w500", jObj.get("path").getAsString());
             }
         }
         return imageURL;
     }
 
-    public String getBackgroundImageUrl() {
-
+    public String getCardImageUrl(boolean originalQuality) {
         Gson g = new Gson();
         JsonArray arr = g.fromJson(images, JsonArray.class);
         String imageURL = "";
         Boolean active;
         String type;
         for (int i = 0; i < arr.size(); i++) {
-            //Log.i("getCardImageUrl", String.valueOf(images.get(i)));
             JsonObject jObj = (JsonObject) arr.get(i);
             active = jObj.get("active").getAsBoolean();
             type = jObj.get("type").getAsString();
-            //Log.i("getBackgroundImageUrl Active", active.toString());
-            //Log.i("getBackgroundImageUrl Type", type);
-            if(active) {
-                imageURL = "https://image.tmdb.org/t/p/original" + jObj.get("path").getAsString();
+            Log.i("IMAGETYPE", type);
+            if(active && type.equals("BACKDROP")) {
+                imageURL = String.format("https://image.tmdb.org/t/p/%s/%s", originalQuality ? "original" : "w500", jObj.get("path").getAsString());
             }
         }
         return imageURL;
@@ -127,7 +126,7 @@ public class Movie implements Serializable {
                 "id=" + id +
                 ", title='" + title + '\'' +
                 ", overview='" + overview + '\'' +
-                ", backgroundImageUrl='" + getBackgroundImageUrl() + '\'' +
+                ", backgroundImageUrl='" + getCardImageUrl(true) + '\'' +
                 '}';
     }
 }

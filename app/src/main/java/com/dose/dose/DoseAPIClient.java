@@ -39,8 +39,9 @@ public abstract class DoseAPIClient {
 
     public abstract String getPlaybackURL(String id, int startPos, String res);
     public abstract JSONArray getNewContent();
-    public abstract JsonObject getOngoing();
+    public abstract JSONArray getOngoing();
     public abstract int getDuration(String id) throws Exception;
+    public abstract JSONArray getWatchlist();
 
     protected DoseAPIClient(String url) {
         this.mainServerURL = url;

@@ -100,11 +100,52 @@ public class MainFragment extends BrowseFragment {
             @Override
             public void run() {
                 try {
-                    List < Movie > list = MovieList.setupMovies(movieAPIClient);
-
+                    int rows = 0;
                     ArrayObjectAdapter rowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
                     CardPresenter cardPresenter = new CardPresenter();
+                    ArrayObjectAdapter listRowAdapter;
+                    HeaderItem header;
+                    List <Movie> list;
 
+                    // ONGOING (MOVIES)
+                    list = MovieList.setupOngoingMovies(movieAPIClient);
+                    listRowAdapter = new ArrayObjectAdapter(cardPresenter);
+                    for (int j = 0; j < Math.min(list.size(), 20); j++) {
+                        listRowAdapter.add(list.get(j));
+                    }
+                    header = new HeaderItem(rows++, "Ongoing");
+                    rowsAdapter.add(new ListRow(header, listRowAdapter));
+
+                    // WATCHLIST (MOVIES)
+                    list = MovieList.setupMovieWatchlist(movieAPIClient);
+                    listRowAdapter = new ArrayObjectAdapter(cardPresenter);
+                    for (int j = 0; j < Math.min(list.size(), 20); j++) {
+                        listRowAdapter.add(list.get(j));
+                    }
+                    header = new HeaderItem(rows++, "Watchlist");
+                    rowsAdapter.add(new ListRow(header, listRowAdapter));
+
+                    // NEWLY ADDED (MOVIES)
+                    list = MovieList.setupNewlyAddedMovies(movieAPIClient);
+                    listRowAdapter = new ArrayObjectAdapter(cardPresenter);
+                    for (int j = 0; j < Math.min(list.size(), 20); j++) {
+                        listRowAdapter.add(list.get(j));
+                    }
+                    header = new HeaderItem(rows++, "Newly added movies");
+                    rowsAdapter.add(new ListRow(header, listRowAdapter));
+
+
+                    // NEW RELEASESE (MOVIES)
+                    list = MovieList.setupNewlyReleasedMovies(movieAPIClient);
+                    listRowAdapter = new ArrayObjectAdapter(cardPresenter);
+                    for (int j = 0; j < Math.min(list.size(), 20); j++) {
+                        listRowAdapter.add(list.get(j));
+                    }
+                    header = new HeaderItem(rows++, "New releases");
+                    rowsAdapter.add(new ListRow(header, listRowAdapter));
+
+
+                    /*
                     int i;
                     for (i = 0; i < NUM_ROWS; i++) {
                         if (i != 0) {
@@ -117,8 +158,9 @@ public class MainFragment extends BrowseFragment {
                         HeaderItem header = new HeaderItem(i, MovieList.MOVIE_CATEGORY[i]);
                         rowsAdapter.add(new ListRow(header, listRowAdapter));
                     }
+                    */
 
-                    HeaderItem gridHeader = new HeaderItem(i, "PREFERENCES");
+                    HeaderItem gridHeader = new HeaderItem(rows, "PREFERENCES");
 
                     GridItemPresenter mGridPresenter = new GridItemPresenter();
                     ArrayObjectAdapter gridRowAdapter = new ArrayObjectAdapter(mGridPresenter);
@@ -248,7 +290,7 @@ public class MainFragment extends BrowseFragment {
                 RowPresenter.ViewHolder rowViewHolder,
                 Row row) {
             if (item instanceof Movie) {
-                mBackgroundUri = ((Movie) item).getBackgroundImageUrl();
+                mBackgroundUri = ((Movie) item).getCardImageUrl(true);
                 startBackgroundTimer();
             }
         }

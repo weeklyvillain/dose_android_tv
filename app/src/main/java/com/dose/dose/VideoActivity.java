@@ -80,11 +80,19 @@ public class VideoActivity extends Activity {
         mSelectedMovie =
                 (Movie) getIntent().getSerializableExtra(DetailsActivity.MOVIE);
 
+        SharedPreferences settings = getSharedPreferences("UserInfo", 0);
+        String JWT = settings.getString("MainServerJWT", "").toString();
+        String mainServerURL = settings.getString("MainServerURL", "").toString();
+        String contentServerURL = settings.getString("ContentServerURL", "").toString();
+        String contentServerJWT = settings.getString("ContentServerJWT", "").toString();
 
-        movieAPIClient = new MovieAPIClient("https://vnc.fgbox.appboxes.co/dose",
-                "https://vnc.fgbox.appboxes.co/doseserver",
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI0IiwiZW1haWwiOiJ0ZXN0QGdtYWlsLmNvbSIsInVzZXJuYW1lIjoiVmV6ZWwiLCJpYXQiOjE2MTU4MDUwNTgsImV4cCI6MTYxNjEwNTA1OH0.-ZNHi4sDi9926SeqApe5hf6NmqPEbN3jp5UBP3OdoOg",
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlZlemVsIiwidXNlcl9pZCI6IjEiLCJpYXQiOjE2MTU5MTQxODUsImV4cCI6MTYxNjIxNDE4NX0.97PMAZ3lfGD5e0JtsE49O6pgsPisMoka_Dpf033QVzY");
+        movieAPIClient = new MovieAPIClient(mainServerURL, contentServerURL, JWT, contentServerJWT);
+
+
+        movieAPIClient = new MovieAPIClient(mainServerURL,
+                contentServerURL,
+                JWT,
+                contentServerJWT);
 
         // Get the duration of the video
         Thread thread = new Thread(new Runnable() {
@@ -146,7 +154,7 @@ public class VideoActivity extends Activity {
             }
         });
 
-        mediaItem = MediaItem.fromUri(movieAPIClient.getPlaybackURL(mSelectedMovie.getId(), 0, "directplay"));
+        mediaItem = MediaItem.fromUri(movieAPIClient.getPlaybackURL(mSelectedMovie.getId(), 0, "1080P"));
         player.setMediaItem(mediaItem);
         player.prepare();
         player.play();
@@ -178,7 +186,7 @@ public class VideoActivity extends Activity {
     private void seek(int seekTo) {
         Log.i("SeekTo: ", String.valueOf(seekTo));
         player.stop();
-        mediaItem = MediaItem.fromUri(movieAPIClient.getPlaybackURL(mSelectedMovie.getId(), seekTo, "directplay"));
+        mediaItem = MediaItem.fromUri(movieAPIClient.getPlaybackURL(mSelectedMovie.getId(), seekTo, "1080P"));
         player.setMediaItem(mediaItem);
         player.prepare();
         player.play();
