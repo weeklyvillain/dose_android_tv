@@ -11,6 +11,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -36,6 +37,8 @@ public class VideoActivity extends Activity {
     // Controls
     private ConstraintLayout controlsLayout;
     private boolean controlsVisible = false;
+
+    private ImageButton playPauseButton;
 
     private int timeAtSeek = 0;
     private final Handler currentTimeHandler = new Handler();
@@ -76,6 +79,7 @@ public class VideoActivity extends Activity {
         durationTextView = findViewById(R.id.duration);
         seekBar = (SeekBar) findViewById(R.id.seekBar);
         controlsLayout = findViewById(R.id.controlsLayout);
+        playPauseButton = findViewById(R.id.imageButton);
 
         mSelectedMovie =
                 (Movie) getIntent().getSerializableExtra(DetailsActivity.MOVIE);
@@ -149,8 +153,10 @@ public class VideoActivity extends Activity {
         playerView.getVideoSurfaceView().setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
+                Log.i("KLICK", "KLIIICK");
                 controlsLayout.setVisibility(View.VISIBLE);
                 controlsVisible = true;
+                playPauseButton.requestFocus();
             }
         });
 
@@ -170,6 +176,7 @@ public class VideoActivity extends Activity {
             controlsLayout.setVisibility(View.INVISIBLE);
             controlsVisible = false;
         } else {
+            player.stop();
             super.onBackPressed();
         }
     }

@@ -9,7 +9,7 @@
 
 
 
-    <!--Widget for exoplayer view-->
+
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/controlsLayout"
@@ -17,21 +17,21 @@
         android:layout_height="69dp"
         android:layout_marginBottom="10dp"
         android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        tools:layout_editor_absoluteX="0dp">
+        android:elevation="10dp"
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <ImageButton
             android:id="@+id/imageButton"
             android:layout_width="50dp"
             android:layout_height="48dp"
+            android:nextFocusLeft="@id/imageButton"
+            android:nextFocusRight="@id/imageButton"
+            android:nextFocusUp="@id/imageButton"
+            android:nextFocusDown="@id/seekBar"
             android:onClick="togglePlay"
             android:src="@drawable/exo_controls_play"
             app:layout_constraintBottom_toTopOf="@+id/currentTime"
-            android:nextFocusDown="@id/seekBar"
-            android:nextFocusUp="@id/imageButton"
-            android:nextFocusLeft="@id/imageButton"
-            android:nextFocusRight="@id/imageButton"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"></ImageButton>
 
         <SeekBar
             android:id="@+id/seekBar"
@@ -40,6 +40,9 @@
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
             android:nextFocusUp="@id/imageButton"
+            android:nextFocusDown="@id/seekBar"
+            android:nextFocusRight="@id/seekBar"
+            android:nextFocusLeft="@id/seekBar"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/duration"
             app:layout_constraintHorizontal_bias="0.555"
@@ -62,6 +65,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+    <!--Widget for exoplayer view-->
 
     <com.google.android.exoplayer2.ui.StyledPlayerView
         android:id="@+id/player_view"
@@ -71,6 +75,7 @@
         app:show_shuffle_button="true"
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="0dp">
+        <requestFocus />
 
     </com.google.android.exoplayer2.ui.StyledPlayerView>
 
