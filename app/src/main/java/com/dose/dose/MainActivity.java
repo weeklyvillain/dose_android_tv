@@ -40,10 +40,12 @@ public class MainActivity extends Activity {
 
     private Boolean loggedIn() {
         SharedPreferences settings = getSharedPreferences("UserInfo", 0);
-        String JWT = settings.getString("JWT", "").toString();
-        String mainServerURL = settings.getString("ServerURL", "").toString();
+        String JWT = settings.getString("MainServerJWT", "").toString();
+        String mainServerURL = settings.getString("MainServerURL", "").toString();
+        String contentServer = settings.getString("ContentServerURL", "").toString();
+        String contentServerJWT = settings.getString("ContentServerJWT", "").toString();
 
-        if(JWT == ""  || mainServerURL == ""){
+        if(JWT == ""  || mainServerURL == "" || contentServer == "" || contentServerJWT == ""){
             return Boolean.FALSE;
         }
         return Boolean.TRUE;

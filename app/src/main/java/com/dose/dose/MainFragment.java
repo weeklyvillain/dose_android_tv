@@ -58,6 +58,7 @@ public class MainFragment extends BrowseFragment {
     private Timer mBackgroundTimer;
     private String mBackgroundUri;
     private BackgroundManager mBackgroundManager;
+    private MovieAPIClient movieAPIClient;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -65,6 +66,14 @@ public class MainFragment extends BrowseFragment {
         super.onActivityCreated(savedInstanceState);
 
         prepareBackgroundManager();
+
+        SharedPreferences settings = this.getActivity().getSharedPreferences("UserInfo", 0);
+        String JWT = settings.getString("MainServerJWT", "").toString();
+        String mainServerURL = settings.getString("MainServerURL", "").toString();
+        String contentServerURL = settings.getString("ContentServerURL", "").toString();
+        String contentServerJWT = settings.getString("ContentServerJWT", "").toString();
+
+        movieAPIClient = new MovieAPIClient(mainServerURL, contentServerURL, JWT, contentServerJWT);
 
         setupUIElements();
 
@@ -87,34 +96,51 @@ public class MainFragment extends BrowseFragment {
     }
 
     private void loadRows() throws JSONException {
-        List<Movie> list = MovieList.setupMovies();
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    List < Movie > list = MovieList.setupMovies(movieAPIClient);
 
-        ArrayObjectAdapter rowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
-        CardPresenter cardPresenter = new CardPresenter();
+                    ArrayObjectAdapter rowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
+                    CardPresenter cardPresenter = new CardPresenter();
 
-        int i;
-        for (i = 0; i < NUM_ROWS; i++) {
-            if (i != 0) {
-                Collections.shuffle(list);
+                    int i;
+                    for (i = 0; i < NUM_ROWS; i++) {
+                        if (i != 0) {
+                            Collections.shuffle(list);
+                        }
+                        ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
+                        for (int j = 0; j < NUM_COLS; j++) {
+                            listRowAdapter.add(list.get(j % 5));
+                        }
+                        HeaderItem header = new HeaderItem(i, MovieList.MOVIE_CATEGORY[i]);
+                        rowsAdapter.add(new ListRow(header, listRowAdapter));
+                    }
+
+                    HeaderItem gridHeader = new HeaderItem(i, "PREFERENCES");
+
+                    GridItemPresenter mGridPresenter = new GridItemPresenter();
+                    ArrayObjectAdapter gridRowAdapter = new ArrayObjectAdapter(mGridPresenter);
+                    gridRowAdapter.add(getResources().getString(R.string.grid_view));
+                    gridRowAdapter.add(getString(R.string.error_fragment));
+                    gridRowAdapter.add("Logout!");
+                    rowsAdapter.add(new ListRow(gridHeader, gridRowAdapter));
+
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            setAdapter(rowsAdapter);
+                        }
+                    });
+                } catch(Exception e) {
+                    e.printStackTrace();
+                }
+
             }
-            ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
-            for (int j = 0; j < NUM_COLS; j++) {
-                listRowAdapter.add(list.get(j % 5));
-            }
-            HeaderItem header = new HeaderItem(i, MovieList.MOVIE_CATEGORY[i]);
-            rowsAdapter.add(new ListRow(header, listRowAdapter));
-        }
+        });
+        thread.start();
 
-        HeaderItem gridHeader = new HeaderItem(i, "PREFERENCES");
-
-        GridItemPresenter mGridPresenter = new GridItemPresenter();
-        ArrayObjectAdapter gridRowAdapter = new ArrayObjectAdapter(mGridPresenter);
-        gridRowAdapter.add(getResources().getString(R.string.grid_view));
-        gridRowAdapter.add(getString(R.string.error_fragment));
-        gridRowAdapter.add("Logout!");
-        rowsAdapter.add(new ListRow(gridHeader, gridRowAdapter));
-
-        setAdapter(rowsAdapter);
     }
 
     private void prepareBackgroundManager() {

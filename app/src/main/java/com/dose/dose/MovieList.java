@@ -28,12 +28,12 @@ public final class MovieList {
 
     public static List<Movie> getList() throws JSONException {
         if (list == null) {
-            list = setupMovies();
+            //list = setupMovies();
         }
         return list;
     }
 
-    public static List<Movie> setupMovies() throws JSONException {
+    public static List<Movie> setupMovies(MovieAPIClient movieAPIClient) throws JSONException {
         list = new ArrayList<>();
         String title[] = {
                 "Back To The Future",
@@ -88,6 +88,8 @@ public final class MovieList {
                             cardImageUrl[index],
                             bgImageUrl[index]));
         }*/
+
+        JSONArray movies = movieAPIClient.getNewContent();
 
         SendPostRequest spr = new SendPostRequest();
         JSONObject JsonObj = spr.sendPost();

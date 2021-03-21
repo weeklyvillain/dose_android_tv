@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.google.gson.JsonObject;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -33,11 +34,11 @@ public abstract class DoseAPIClient {
     private String userName;
     private String password;
     private String mainJWT;
-    private String movieJWT;
+    protected String movieJWT;
     private String mainServerURL;
 
     public abstract String getPlaybackURL(String id, int startPos, String res);
-    public abstract JsonObject getNewContent();
+    public abstract JSONArray getNewContent();
     public abstract JsonObject getOngoing();
     public abstract int getDuration(String id) throws Exception;
 
@@ -56,7 +57,7 @@ public abstract class DoseAPIClient {
         this.movieJWT = movieJWT;
     }
 
-    public void login(String username, String password) {
+    public static JSONObject login(String username, String password, String mainServerUrl) {
         JSONObject jsonParam = new JSONObject();
         try {
             jsonParam.put("username", username);
@@ -64,15 +65,57 @@ public abstract class DoseAPIClient {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        JSONObject response = customPost(mainServerURL + "/api/auth/login", new JSONObject(), jsonParam);
-        try {
-            mainJWT = response.getString("token");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        JSONObject response = customPost(mainServerUrl + "/api/auth/login", new JSONObject(), jsonParam);
+        return response;
     }
 
-    public JSONObject customPost(String url, JSONObject headers, JSONObject body) {
+    public static JSONObject getContentServers(String mainServerURL, String mainServerJWT) {
+        /*
+        JSONObject jsonParam = new JSONObject();
+        try {
+            jsonParam.put("username", username);
+            jsonParam.put("password", password);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        JSONObject response = customPost(mainServerUrl + "/api/auth/login", new JSONObject(), jsonParam);
+        return response;
+        */
+        JSONObject result = new JSONObject();
+        try {
+            result.put("server", "https://vnc.fgbox.appboxes.co/doseserver");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public static String getContentServerJWT(String contentServer, String mainJWT) {
+        JSONObject jsonParam = new JSONObject();
+        try {
+            jsonParam.put("token", mainJWT);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        JSONObject response = customPost(contentServer + "/api/auth/validate", new JSONObject(), jsonParam);
+        Log.i("CONTENTJWT", response.toString());
+
+        String result;
+        try {
+            if (response.getString("status").equals("success")) {
+                result = response.getString("token");
+            } else {
+                result = "";
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+            result = "";
+        }
+
+        return result;
+    }
+
+    public static JSONObject customPost(String url, JSONObject headers, JSONObject body) {
         try {
         URL reqUrl = new URL(url);
         HttpURLConnection conn = (HttpURLConnection) reqUrl.openConnection();

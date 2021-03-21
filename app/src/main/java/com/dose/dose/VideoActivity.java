@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -78,6 +79,8 @@ public class VideoActivity extends Activity {
 
         mSelectedMovie =
                 (Movie) getIntent().getSerializableExtra(DetailsActivity.MOVIE);
+
+
         movieAPIClient = new MovieAPIClient("https://vnc.fgbox.appboxes.co/dose",
                 "https://vnc.fgbox.appboxes.co/doseserver",
                 "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI0IiwiZW1haWwiOiJ0ZXN0QGdtYWlsLmNvbSIsInVzZXJuYW1lIjoiVmV6ZWwiLCJpYXQiOjE2MTU4MDUwNTgsImV4cCI6MTYxNjEwNTA1OH0.-ZNHi4sDi9926SeqApe5hf6NmqPEbN3jp5UBP3OdoOg",
@@ -143,7 +146,7 @@ public class VideoActivity extends Activity {
             }
         });
 
-        mediaItem = MediaItem.fromUri(movieAPIClient.getPlaybackURL(mSelectedMovie.getId(), 0, "1080P"));
+        mediaItem = MediaItem.fromUri(movieAPIClient.getPlaybackURL(mSelectedMovie.getId(), 0, "directplay"));
         player.setMediaItem(mediaItem);
         player.prepare();
         player.play();
@@ -175,7 +178,7 @@ public class VideoActivity extends Activity {
     private void seek(int seekTo) {
         Log.i("SeekTo: ", String.valueOf(seekTo));
         player.stop();
-        mediaItem = MediaItem.fromUri(movieAPIClient.getPlaybackURL(mSelectedMovie.getId(), seekTo, "1080P"));
+        mediaItem = MediaItem.fromUri(movieAPIClient.getPlaybackURL(mSelectedMovie.getId(), seekTo, "directplay"));
         player.setMediaItem(mediaItem);
         player.prepare();
         player.play();

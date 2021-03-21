@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.google.gson.JsonObject;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class MovieAPIClient extends DoseAPIClient {
@@ -27,8 +28,18 @@ public class MovieAPIClient extends DoseAPIClient {
     }
 
     @Override
-    public JsonObject getNewContent() {
-        return null;
+    public JSONArray getNewContent() {
+        String url = this.movieServerURL + String.format("/api/movies/list?orderby=added_date&limit=20&token=%s", this.movieJWT);
+
+        JSONArray result;
+        try {
+            result = super.customGet(url, new JSONObject()).getJSONArray("result");
+        } catch(Exception e) {
+            e.printStackTrace();
+            result = new JSONArray();
+        }
+        Log.i("ALL THE FINE MOVIES: ", result.toString());
+        return result;
     }
 
     @Override
