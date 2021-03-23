@@ -2,6 +2,8 @@ package com.dose.dose;
 
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -39,9 +41,11 @@ public class MovieCardView extends BaseCardView {
     /**
      * Sets the image drawable.
      */
-    public void setMainImage(Drawable drawable) {
+    public void setMainImage(Drawable drawable)
+    {
         mainImageView.setImageDrawable(drawable);
     }
+
 
     /**
      * Sets the title text.

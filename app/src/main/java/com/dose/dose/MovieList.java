@@ -1,14 +1,14 @@
 package com.dose.dose;
 
-import android.util.Log;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.dose.dose.ApiClient.DoseAPIClient;
+import com.dose.dose.ApiClient.MovieAPIClient;
+import com.dose.dose.ApiClient.ShowAPIClient;
+import com.dose.dose.content.BaseContent;
+import com.dose.dose.content.Movie;
+import com.dose.dose.content.Show;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,25 +33,38 @@ public final class MovieList {
         return list;
     }
 
-    public static List<Movie> setupNewlyAddedMovies(MovieAPIClient movieAPIClient) throws JSONException {
-        List<Movie> list = new ArrayList<>();
-        JSONArray movies = movieAPIClient.getNewContent();
+
+    public static List<BaseContent> setupNewlyAdded(DoseAPIClient apiClient) throws JSONException {
+        List<BaseContent> list = new ArrayList<>();
+        JSONArray movies = apiClient.getNewContent();
 
         if (movies != null) {
             for (int i=0;i<movies.length();i++) {
-                Movie obj = buildMovieInfo(
-                        movies.getJSONObject(i).getString("id"),
-                        movies.getJSONObject(i).getString("title"),
-                        movies.getJSONObject(i).getString("overview"),
-                        movies.getJSONObject(i).getString("release_date"),
-                        movies.getJSONObject(i).getJSONArray("images"),
-                        movieAPIClient.movieJWT,
-                        0); // TODO: We should get the watchtime for these movies aswell
+                BaseContent obj;
+                if (apiClient instanceof MovieAPIClient) {
+                    obj = buildMovieInfo(
+                            movies.getJSONObject(i).getString("id"),
+                            movies.getJSONObject(i).getString("title"),
+                            movies.getJSONObject(i).getString("overview"),
+                            movies.getJSONObject(i).getString("release_date"),
+                            movies.getJSONObject(i).getJSONArray("images"),
+                            apiClient.getMovieJWT(),
+                            0); // TODO: We should get the watchtime for these movies aswell
+                } else {
+                    obj = buildShowInfo(
+                            movies.getJSONObject(i).getString("id"),
+                            movies.getJSONObject(i).getString("title"),
+                            movies.getJSONObject(i).getString("overview"),
+                            movies.getJSONObject(i).getString("first_air_date"),
+                            movies.getJSONObject(i).getJSONArray("images"),
+                            apiClient.getMovieJWT(),
+                            0); // TODO: We should get the watchtime for these movies aswell
+                }
 
                 list.add(obj);
             }
         }
-        return  list;
+        return list;
     }
 
     public static List<Movie> setupNewlyReleasedMovies(MovieAPIClient movieAPIClient) throws JSONException {
@@ -66,7 +79,7 @@ public final class MovieList {
                         movies.getJSONObject(i).getString("overview"),
                         movies.getJSONObject(i).getString("release_date"),
                         movies.getJSONObject(i).getJSONArray("images"),
-                        movieAPIClient.movieJWT,
+                        movieAPIClient.getMovieJWT(),
                         0); // TODO: We should get the watchtime for these movies aswell
 
                 list.add(obj);
@@ -75,22 +88,33 @@ public final class MovieList {
         return  list;
     }
 
-    public static List<Movie> setupOngoingMovies(MovieAPIClient movieAPIClient) throws JSONException {
-        List<Movie> list = new ArrayList<>();
-        JSONArray movies = movieAPIClient.getOngoing();
+    public static List<BaseContent> setupOngoing(DoseAPIClient apiClient) throws JSONException {
+        List<BaseContent> list = new ArrayList<>();
+        JSONArray content = apiClient.getOngoing();
 
-        if (movies != null) {
-            for (int i=0;i<movies.length();i++) {
-                int watchTime = movies.getJSONObject(i).getInt("watchtime");
-                Movie obj = buildMovieInfo(
-                        movies.getJSONObject(i).getString("id"),
-                        movies.getJSONObject(i).getString("title"),
-                        movies.getJSONObject(i).getString("overview"),
-                        movies.getJSONObject(i).getString("release_date"),
-                        movies.getJSONObject(i).getJSONArray("images"),
-                        movieAPIClient.movieJWT,
-                        watchTime);
-
+        if (content != null) {
+            for (int i=0;i<content.length();i++) {
+                int watchTime = content.getJSONObject(i).getInt("watchtime");
+                BaseContent obj;
+                if (apiClient instanceof MovieAPIClient) {
+                    obj = buildMovieInfo(
+                            content.getJSONObject(i).getString("id"),
+                            content.getJSONObject(i).getString("title"),
+                            content.getJSONObject(i).getString("overview"),
+                            content.getJSONObject(i).getString("release_date"),
+                            content.getJSONObject(i).getJSONArray("images"),
+                            apiClient.getMovieJWT(),
+                            watchTime);
+                } else {
+                    obj = buildShowInfo(
+                            content.getJSONObject(i).getString("id"),
+                            content.getJSONObject(i).getString("title"),
+                            content.getJSONObject(i).getString("overview"),
+                            content.getJSONObject(i).getString("release_date"),
+                            content.getJSONObject(i).getJSONArray("images"),
+                            apiClient.getMovieJWT(),
+                            0); // TODO: We should get the watchtime for these movies aswell
+                }
                 list.add(obj);
             }
         }
@@ -109,7 +133,7 @@ public final class MovieList {
                         movies.getJSONObject(i).getString("overview"),
                         movies.getJSONObject(i).getString("release_date"),
                         movies.getJSONObject(i).getJSONArray("images"),
-                        movieAPIClient.movieJWT,
+                        movieAPIClient.getMovieJWT(),
                         0); // TODO: We should get the watchtime for these movies aswell
 
                 list.add(obj);
@@ -128,5 +152,16 @@ public final class MovieList {
             int watchTime) {
         Movie movie = new Movie(id, title, description,release , cardImageUrl, JWT, watchTime);
         return movie;
+    }
+
+    private static Show buildShowInfo(
+            String id,
+            String title,
+            String description,
+            String release,
+            JSONArray cardImageUrl,
+            String JWT,
+            int watchTime) {
+        return new Show(id, title, description, release, cardImageUrl, JWT, watchTime);
     }
 }

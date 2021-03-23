@@ -10,9 +10,9 @@ import android.os.Handler;
 
 import androidx.leanback.app.BackgroundManager;
 import androidx.leanback.app.BrowseFragment;
+import androidx.leanback.app.BrowseSupportFragment;
 import androidx.leanback.widget.ArrayObjectAdapter;
 import androidx.leanback.widget.HeaderItem;
-import androidx.leanback.widget.ImageCardView;
 import androidx.leanback.widget.ListRow;
 import androidx.leanback.widget.ListRowPresenter;
 import androidx.leanback.widget.OnItemViewClickedListener;
@@ -35,15 +35,18 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.dose.dose.ApiClient.MovieAPIClient;
+import com.dose.dose.ApiClient.ShowAPIClient;
+import com.dose.dose.content.BaseContent;
+import com.dose.dose.content.Movie;
 
 import org.json.JSONException;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MainFragment extends BrowseFragment {
+public class MainFragment extends BrowseSupportFragment {
     private static final String TAG = "MainFragment";
 
     private static final int BACKGROUND_UPDATE_DELAY = 300;
@@ -59,6 +62,7 @@ public class MainFragment extends BrowseFragment {
     private String mBackgroundUri;
     private BackgroundManager mBackgroundManager;
     private MovieAPIClient movieAPIClient;
+    private ShowAPIClient showAPIClient;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -75,6 +79,8 @@ public class MainFragment extends BrowseFragment {
         Log.i(TAG, contentServerURL);
 
         movieAPIClient = new MovieAPIClient(mainServerURL, contentServerURL, JWT, contentServerJWT);
+        showAPIClient  = new ShowAPIClient(mainServerURL, contentServerURL, JWT, contentServerJWT);
+
 
         setupUIElements();
 
@@ -106,43 +112,53 @@ public class MainFragment extends BrowseFragment {
                     CardPresenter cardPresenter = new CardPresenter();
                     ArrayObjectAdapter listRowAdapter;
                     HeaderItem header;
-                    List <Movie> list;
+                    List <Movie> movieSpecificList;
+                    List <BaseContent> contentList;
 
                     // ONGOING (MOVIES)
-                    list = MovieList.setupOngoingMovies(movieAPIClient);
+                    contentList = MovieList.setupOngoing(movieAPIClient);
                     listRowAdapter = new ArrayObjectAdapter(cardPresenter);
-                    for (int j = 0; j < Math.min(list.size(), 20); j++) {
-                        listRowAdapter.add(list.get(j));
+                    for (int j = 0; j < Math.min(contentList.size(), 20); j++) {
+                        listRowAdapter.add(contentList.get(j));
                     }
                     header = new HeaderItem(rows++, "Ongoing");
                     rowsAdapter.add(new ListRow(header, listRowAdapter));
 
                     // WATCHLIST (MOVIES)
-                    list = MovieList.setupMovieWatchlist(movieAPIClient);
+                    movieSpecificList = MovieList.setupMovieWatchlist(movieAPIClient);
                     listRowAdapter = new ArrayObjectAdapter(cardPresenter);
-                    for (int j = 0; j < Math.min(list.size(), 20); j++) {
-                        listRowAdapter.add(list.get(j));
+                    for (int j = 0; j < Math.min(movieSpecificList.size(), 20); j++) {
+                        listRowAdapter.add(movieSpecificList.get(j));
                     }
                     header = new HeaderItem(rows++, "Watchlist");
                     rowsAdapter.add(new ListRow(header, listRowAdapter));
 
                     // NEWLY ADDED (MOVIES)
-                    list = MovieList.setupNewlyAddedMovies(movieAPIClient);
+                    contentList = MovieList.setupNewlyAdded(movieAPIClient);
                     listRowAdapter = new ArrayObjectAdapter(cardPresenter);
-                    for (int j = 0; j < Math.min(list.size(), 20); j++) {
-                        listRowAdapter.add(list.get(j));
+                    for (int j = 0; j < Math.min(contentList.size(), 20); j++) {
+                        listRowAdapter.add(contentList.get(j));
                     }
-                    header = new HeaderItem(rows++, "Newly added movies");
+                    header = new HeaderItem(rows++, "New Movies");
+                    rowsAdapter.add(new ListRow(header, listRowAdapter));
+
+                    // NEWLY ADDED (SHOWS)
+                    contentList = MovieList.setupNewlyAdded(showAPIClient);
+                    listRowAdapter = new ArrayObjectAdapter(cardPresenter);
+                    for (int j = 0; j < Math.min(contentList.size(), 20); j++) {
+                        listRowAdapter.add(contentList.get(j));
+                    }
+                    header = new HeaderItem(rows++, "New Shows");
                     rowsAdapter.add(new ListRow(header, listRowAdapter));
 
 
                     // NEW RELEASESE (MOVIES)
-                    list = MovieList.setupNewlyReleasedMovies(movieAPIClient);
+                    movieSpecificList = MovieList.setupNewlyReleasedMovies(movieAPIClient);
                     listRowAdapter = new ArrayObjectAdapter(cardPresenter);
-                    for (int j = 0; j < Math.min(list.size(), 20); j++) {
-                        listRowAdapter.add(list.get(j));
+                    for (int j = 0; j < Math.min(movieSpecificList.size(), 20); j++) {
+                        listRowAdapter.add(movieSpecificList.get(j));
                     }
-                    header = new HeaderItem(rows++, "New releases");
+                    header = new HeaderItem(rows++, "New Releases");
                     rowsAdapter.add(new ListRow(header, listRowAdapter));
 
 
@@ -292,6 +308,7 @@ public class MainFragment extends BrowseFragment {
                 Row row) {
             if (item instanceof Movie) {
                 mBackgroundUri = ((Movie) item).getCardImageUrl(true);
+                Log.i("INSTANCEOF", mBackgroundUri);
                 startBackgroundTimer();
             }
         }

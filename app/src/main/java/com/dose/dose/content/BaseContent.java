@@ -1,4 +1,10 @@
-package com.dose.dose;
+package com.dose.dose.content;
+
+import android.util.Log;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import android.util.Log;
 
@@ -15,27 +21,28 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
- * Movie class represents video entity with title, description, image thumbs and video url.
- */
-public class Movie implements Serializable {
-    static final long serialVersionUID = 727566175075960653L;
-    private String id;
-    private String title;
-    private String overview;
-    private String release_date;
-    private String images;
-    private String playBackUrl;
-    private int watchTime;
+import org.json.JSONArray;
 
-    public Movie(String id, String title, String overview, String release_date, JSONArray images, String JWT, int watchTime) {
+import java.io.Serializable;
+
+public abstract class BaseContent implements Serializable  {
+    static final long serialVersionUID = 727566175075960653L;
+
+    protected String id;
+    protected String title;
+    protected String overview;
+    protected String release_date;
+    protected String images;
+    protected String playBackUrl;
+    protected int watchTime;
+
+    public BaseContent(String id, String title, String overview, String release_date, JSONArray images, String JWT, int watchTime) {
         this.id = id;
         this.title = title;
         this.overview = overview;
         this.release_date = release_date;
         this.images = String.valueOf(images);
         this.watchTime = watchTime;
-        this.playBackUrl = "https://vnc.fgbox.appboxes.co/doseserver/api/video/" + id+ "?type=movie&token=" + JWT + "&start=0&quality=720p";
     }
 
     public String getId() {
@@ -52,10 +59,6 @@ public class Movie implements Serializable {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getPlayBackUrl() {
-        return playBackUrl;
     }
 
     public String getDescription() {
@@ -88,7 +91,6 @@ public class Movie implements Serializable {
             JsonObject jObj = (JsonObject) arr.get(i);
             active = jObj.get("active").getAsBoolean();
             type = jObj.get("type").getAsString();
-            Log.i("IMAGETYPE", type);
             if(active && type.equals("POSTER")) {
                 imageURL = String.format("https://image.tmdb.org/t/p/%s/%s", originalQuality ? "original" : "w500", jObj.get("path").getAsString());
             }
@@ -106,9 +108,9 @@ public class Movie implements Serializable {
             JsonObject jObj = (JsonObject) arr.get(i);
             active = jObj.get("active").getAsBoolean();
             type = jObj.get("type").getAsString();
-            Log.i("IMAGETYPE", type);
             if(active && type.equals("BACKDROP")) {
                 imageURL = String.format("https://image.tmdb.org/t/p/%s/%s", originalQuality ? "original" : "w500", jObj.get("path").getAsString());
+                break;
             }
         }
         return imageURL;
@@ -118,15 +120,5 @@ public class Movie implements Serializable {
         Gson g = new Gson();
 
         this.images = g.toJson(images);
-    }
-
-    @Override
-    public String toString() {
-        return "Movie{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", overview='" + overview + '\'' +
-                ", backgroundImageUrl='" + getCardImageUrl(true) + '\'' +
-                '}';
     }
 }

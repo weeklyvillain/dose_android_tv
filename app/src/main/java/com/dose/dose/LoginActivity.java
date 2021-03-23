@@ -1,9 +1,6 @@
 package com.dose.dose;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.Activity;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,14 +9,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.dose.dose.ApiClient.DoseAPIClient;
+
 import org.json.JSONObject;
-import org.json.JSONTokener;
-
-import java.io.DataOutputStream;
-import java.io.InputStream;
-import java.net.URL;
-
-import javax.net.ssl.HttpsURLConnection;
 
 public class LoginActivity extends Activity {
 

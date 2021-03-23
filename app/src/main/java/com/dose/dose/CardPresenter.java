@@ -12,6 +12,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.dose.dose.ApiClient.DoseAPIClient;
+import com.dose.dose.content.BaseContent;
+import com.dose.dose.content.Movie;
+import com.dose.dose.content.Show;
 
 /*
  * A CardPresenter is used to generate Views and bind Objects to them on demand.
@@ -31,13 +35,18 @@ public class CardPresenter extends Presenter {
 
     @Override
     public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
-        Movie movie = (Movie) item;
+        BaseContent content;
+        if (item instanceof Movie) {
+            content = (Movie) item;
+        } else {
+            content = (Show) item;
+        }
         MovieCardView cardView = (MovieCardView) viewHolder.view;
 
         cardView.setOnFocusChangeListener((view, hasFocus) -> {
             if(hasFocus) {
-                cardView.setTitleText(movie.getTitle());
-                cardView.setContentText(movie.getDescription());
+                cardView.setTitleText(content.getTitle());
+                cardView.setContentText(content.getDescription());
             } else {
                 cardView.setTitleText("");
                 cardView.setContentText("");
@@ -46,12 +55,14 @@ public class CardPresenter extends Presenter {
 
 
         Log.d(TAG, "onBindViewHolder");
-        if (movie.getCardImageUrl(false) != null) {
+        if (content.getCardImageUrl(false) != null) {
             cardView.setTitleText("");
             cardView.setContentText("");
+            Log.i("NUÄRVIHÄR", content.getCardImageUrl(false));
+
 
             Glide.with(viewHolder.view.getContext())
-                    .load(movie.getCardImageUrl(false))
+                    .load(content.getCardImageUrl(false))
                     .error(mDefaultCardImage)
                     .into(cardView.getMainImageView());
         }

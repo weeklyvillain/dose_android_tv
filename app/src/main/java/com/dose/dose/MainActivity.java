@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.fragment.app.FragmentActivity;
+
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -17,7 +19,7 @@ import java.net.URL;
 /*
  * Main Activity class that loads {@link MainFragment}.
  */
-public class MainActivity extends Activity {
+public class MainActivity extends FragmentActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

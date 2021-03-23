@@ -2,6 +2,8 @@ package com.dose.dose;
 
 import androidx.leanback.widget.AbstractDetailsDescriptionPresenter;
 
+import com.dose.dose.content.Movie;
+
 public class DetailsDescriptionPresenter extends AbstractDetailsDescriptionPresenter {
 
     @Override
