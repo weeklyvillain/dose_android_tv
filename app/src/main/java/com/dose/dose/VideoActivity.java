@@ -15,9 +15,22 @@ import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
+import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
+import com.google.android.exoplayer2.util.Util;
+
+import java.io.IOException;
 
 
 public class VideoActivity extends Activity {
@@ -144,10 +157,19 @@ public class VideoActivity extends Activity {
 
         });
 
+        DefaultLoadControl loadControl = new DefaultLoadControl.Builder().setBufferDurationsMs(3000, 3600001, 2500, 2500).build();
+        // TODO: We have to add error handler since we don't retry after timeout. App will just crash
+        player = new SimpleExoPlayer.Builder(this)
+                .setLoadControl(loadControl)
+                .build();
+        Player.EventListener eventListener = new Player.EventListener() {
 
-        //playVideo();
-
-        player = new SimpleExoPlayer.Builder(this).build();
+            @Override
+            public void onPlaybackStateChanged(int state) {
+                Log.i("ONPLAYBACKCHANGE; ", String.format("NEW STATE: %d", state));
+            }
+        };
+        player.addListener(eventListener);
         playerView.setPlayer(player);
         playerView.setUseController(false);
         playerView.getVideoSurfaceView().setOnClickListener(new View.OnClickListener(){
@@ -160,8 +182,28 @@ public class VideoActivity extends Activity {
             }
         });
 
-        mediaItem = MediaItem.fromUri(movieAPIClient.getPlaybackURL(mSelectedMovie.getId(), 0, "1080P"));
-        player.setMediaItem(mediaItem);
+
+        String userAgent = Util.getUserAgent(this, "Dose");
+
+        DefaultHttpDataSourceFactory httpDataSourceFactory = new DefaultHttpDataSourceFactory(
+                userAgent,
+                null /* listener */,
+                100000,
+                100000,
+                true /* allowCrossProtocolRedirects */
+        );
+
+
+        DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this, null, httpDataSourceFactory);
+        MediaSource mediaSource = new DefaultMediaSourceFactory(dataSourceFactory).setLoadErrorHandlingPolicy(getMyErrorHandlingPolicy())
+                .createMediaSource(
+                        MediaItem.fromUri(
+                                Uri.parse(
+                                        movieAPIClient.getPlaybackURL(mSelectedMovie.getId(), 0, "1080P")
+                                )
+                        )
+        );
+        player.setMediaSource(mediaSource);
         player.prepare();
         player.play();
         currentTimeHandler.post(currentTimeUpdater);
@@ -193,12 +235,53 @@ public class VideoActivity extends Activity {
     private void seek(int seekTo) {
         Log.i("SeekTo: ", String.valueOf(seekTo));
         player.stop();
-        mediaItem = MediaItem.fromUri(movieAPIClient.getPlaybackURL(mSelectedMovie.getId(), seekTo, "1080P"));
-        player.setMediaItem(mediaItem);
+
+        String userAgent = Util.getUserAgent(this, "Dose");
+
+        DefaultHttpDataSourceFactory httpDataSourceFactory = new DefaultHttpDataSourceFactory(
+                userAgent,
+                null /* listener */,
+                100000,
+                100000,
+                true /* allowCrossProtocolRedirects */
+        );
+
+
+        DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this, null, httpDataSourceFactory);
+        MediaSource mediaSource = new DefaultMediaSourceFactory(dataSourceFactory).setLoadErrorHandlingPolicy(getMyErrorHandlingPolicy())
+                .createMediaSource(
+                        MediaItem.fromUri(
+                                Uri.parse(
+                                        movieAPIClient.getPlaybackURL(mSelectedMovie.getId(), seekTo, "1080P")
+                                )
+                        )
+                );
+
+
+
+        player.setMediaSource(mediaSource);
         player.prepare();
         player.play();
         timeAtSeek = seekTo;
         isSeeking = false;
+    }
+
+
+    private static LoadErrorHandlingPolicy getMyErrorHandlingPolicy(){
+//        LoadErrorHandlingPolicy loadErrorHandlingPolicy = new DefaultLoadErrorHandlingPolicy();
+
+        return new LoadErrorHandlingPolicy() {
+
+            @Override
+            public long getRetryDelayMsFor(LoadErrorInfo loadErrorInfo) {
+                return C.TIME_UNSET;
+            }
+
+            @Override
+            public int getMinimumLoadableRetryCount(int dataType) {
+                return 0;
+            }
+        };
     }
 
 }

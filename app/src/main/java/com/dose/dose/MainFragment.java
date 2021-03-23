@@ -72,6 +72,7 @@ public class MainFragment extends BrowseFragment {
         String mainServerURL = settings.getString("MainServerURL", "").toString();
         String contentServerURL = settings.getString("ContentServerURL", "").toString();
         String contentServerJWT = settings.getString("ContentServerJWT", "").toString();
+        Log.i(TAG, contentServerURL);
 
         movieAPIClient = new MovieAPIClient(mainServerURL, contentServerURL, JWT, contentServerJWT);
 

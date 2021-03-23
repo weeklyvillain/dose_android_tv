@@ -47,7 +47,7 @@ public class LoginActivity extends Activity {
                                 JSONObject servers = DoseAPIClient.getContentServers(serverURL.getText().toString(), loginResult.getString("token"));
                                 Log.i("SERVERS: ", servers.toString());
                                 String contentJWT = DoseAPIClient.getContentServerJWT(servers.getString("server"), loginResult.getString("token"));
-
+                                Log.i("contentJWT: ", contentJWT);
                                 if (!contentJWT.equals("")) {
                                     SharedPreferences settings = getSharedPreferences("UserInfo", 0);
                                     SharedPreferences.Editor editor = settings.edit();

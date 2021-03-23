@@ -67,6 +67,7 @@ public abstract class DoseAPIClient {
             e.printStackTrace();
         }
         JSONObject response = customPost(mainServerUrl + "/api/auth/login", new JSONObject(), jsonParam);
+        Log.i("RESPONSE: ", response.toString());
         return response;
     }
 
@@ -85,6 +86,7 @@ public abstract class DoseAPIClient {
         JSONObject result = new JSONObject();
         try {
             result.put("server", "https://vnc.fgbox.appboxes.co/doseserver");
+            //result.put("server", "http://10.0.2.2:3001");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -118,8 +120,9 @@ public abstract class DoseAPIClient {
 
     public static JSONObject customPost(String url, JSONObject headers, JSONObject body) {
         try {
+            Log.i("URL: ", url);
         URL reqUrl = new URL(url);
-        HttpURLConnection conn = (HttpURLConnection) reqUrl.openConnection();
+        HttpsURLConnection conn = (HttpsURLConnection) reqUrl.openConnection();
         conn.setRequestMethod("POST");
         conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
         conn.setRequestProperty("Accept","application/json");

@@ -44,10 +44,10 @@ public class MainActivity extends Activity {
         String mainServerURL = settings.getString("MainServerURL", "").toString();
         String contentServer = settings.getString("ContentServerURL", "").toString();
         String contentServerJWT = settings.getString("ContentServerJWT", "").toString();
-
         if(JWT == ""  || mainServerURL == "" || contentServer == "" || contentServerJWT == ""){
             return Boolean.FALSE;
         }
+
         return Boolean.TRUE;
     }
 }
