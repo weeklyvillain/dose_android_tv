@@ -1,5 +1,4 @@
 package com.dose.dose;
-
 import android.app.Activity;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -12,21 +11,20 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
-import com.dose.dose.content.Movie;
 import com.dose.dose.content.Show;
 
 /*
  * Details activity class that loads LeanbackDetailsFragment class
  */
-public class DetailsActivity extends Activity {
+public class ShowDetailsActivity extends Activity {
     public static final String SHARED_ELEMENT_NAME = "hero";
-    public static final String MOVIE = "Movie";
+    public static final String SHOW = "Show";
 
     private Drawable mDefaultBackground;
     private BackgroundManager mBackgroundManager;
     private DisplayMetrics mMetrics;
 
-    private Movie mSelectedMovie;
+    private Show mSelectedShow;
 
     /**
      * Called when the activity is first created.
@@ -34,11 +32,10 @@ public class DetailsActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_details);
+        setContentView(R.layout.activity_show_details);
 
         prepareBackgroundManager();
     }
-
 
     private void prepareBackgroundManager() {
 
@@ -49,10 +46,10 @@ public class DetailsActivity extends Activity {
         mMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
 
-        mSelectedMovie =
-                (Movie) getIntent().getSerializableExtra(DetailsActivity.MOVIE);
+        mSelectedShow =
+                (Show) getIntent().getSerializableExtra(ShowDetailsActivity.SHOW);
 
-        updateBackground(mSelectedMovie.getCardImageUrl(true));
+        updateBackground(mSelectedShow.getCardImageUrl(true));
     }
 
     private void updateBackground(String uri) {
@@ -71,4 +68,5 @@ public class DetailsActivity extends Activity {
                     }
                 });
     }
+
 }

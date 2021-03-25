@@ -35,6 +35,10 @@ public abstract class BaseContent implements Serializable  {
     protected String images;
     protected String playBackUrl;
     protected int watchTime;
+    protected int duration;
+
+    public BaseContent() {
+    }
 
     public BaseContent(String id, String title, String overview, String release_date, JSONArray images, String JWT, int watchTime) {
         this.id = id;
@@ -81,6 +85,18 @@ public abstract class BaseContent implements Serializable  {
         return watchTime;
     }
 
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public String getImages() {
+        return this.images;
+    }
+
     public String getPosterImage(boolean originalQuality) {
         Gson g = new Gson();
         JsonArray arr = g.fromJson(images, JsonArray.class);
@@ -95,6 +111,7 @@ public abstract class BaseContent implements Serializable  {
                 imageURL = String.format("https://image.tmdb.org/t/p/%s/%s", originalQuality ? "original" : "w500", jObj.get("path").getAsString());
             }
         }
+        Log.i("POSTERIMAGE: ", imageURL);
         return imageURL;
     }
 

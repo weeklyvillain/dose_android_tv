@@ -41,6 +41,7 @@ public abstract class DoseAPIClient {
     public abstract JSONArray getOngoing();
     public abstract int getDuration(String id) throws Exception;
     public abstract JSONArray getWatchlist();
+    public abstract void updateCurrentTime(String id, int time, int videoDuration);
 
     protected DoseAPIClient(String mainServerURL, String movieServerURL, String mainJWT, String movieJWT) {
         this.mainServerURL = mainServerURL;
@@ -174,9 +175,13 @@ public abstract class DoseAPIClient {
                 respDataBuf.append((char)b);
             }
             responseMsg = respDataBuf.toString();
-            JSONObject jsonObject = new JSONObject(new JSONTokener(responseMsg));
+            JSONObject jsonObject = null;
+            if (!responseMsg.isEmpty()) {
+                jsonObject = new JSONObject(new JSONTokener(responseMsg));
+            }
             Log.i("STATUS", String.valueOf(conn.getResponseCode()));
             Log.i("MSG" , conn.getResponseMessage());
+            Log.i("RESPONSE: ", jsonObject.toString());
             conn.disconnect();
 
             return jsonObject;

@@ -2,6 +2,7 @@ package com.dose.dose;
 
 import android.graphics.drawable.Drawable;
 
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.leanback.widget.ImageCardView;
 import androidx.leanback.widget.Presenter;
 import androidx.core.content.ContextCompat;
@@ -22,60 +23,51 @@ import com.dose.dose.content.Show;
  * A CardPresenter is used to generate Views and bind Objects to them on demand.
  * It contains an Image CardView
  */
-public class CardPresenter extends Presenter {
-    private static final String TAG = "CardPresenter";
+public class SeasonPosterPresenter extends Presenter {
+    private static final String TAG = "SeasonPosterPresenter";
     private Drawable mDefaultCardImage;
 
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent) {
         Log.d(TAG, "onCreateViewHolder");
-        MovieCardView cardView = new MovieCardView(parent.getContext());
+        SeasonCardView cardView = new SeasonCardView(parent.getContext());
         return new ViewHolder(cardView);
     }
 
     @Override
     public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
-        BaseContent content;
-        if (item instanceof Movie) {
-            content = (Movie) item;
-        } else if (item instanceof Show){
-            content = (Show) item;
-        } else {
-            content = (Season) item;
-        }
-        MovieCardView cardView = (MovieCardView) viewHolder.view;
+        Season season = (Season) item;
+
+        SeasonCardView cardView = (SeasonCardView) viewHolder.view;
 
         cardView.setOnFocusChangeListener((view, hasFocus) -> {
-            if(hasFocus && !(item instanceof Season)) {
-                cardView.setTitleText(content.getTitle());
-                cardView.setContentText(content.getDescription());
+            if(hasFocus) {
+                cardView.setSeasonText(season.getTitle());
             } else {
-                cardView.setTitleText("");
-                cardView.setContentText("");
+                cardView.setSeasonText("");
             }
         });
 
 
         Log.d(TAG, "onBindViewHolder");
-        if (content.getCardImageUrl(false) != null) {
-            cardView.setTitleText("");
-            cardView.setContentText("");
-            Log.i("NUÄRVIHÄR", content.getCardImageUrl(false));
+        if (season.getPosterImage(true) != null) {
+            cardView.setSeasonText("");
+            Log.i("NUÄRVIHÄR", season.getPosterImage(true));
 
 
             Glide.with(viewHolder.view.getContext())
-                    .load(content.getCardImageUrl(false))
+                    .load(season.getPosterImage(true))
                     .error(mDefaultCardImage)
-                    .into(cardView.getMainImageView());
+                    .into(cardView.getPosterImage());
         }
     }
 
     @Override
     public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
         Log.d(TAG, "onUnbindViewHolder");
-        MovieCardView cardView = (MovieCardView) viewHolder.view;
+        SeasonCardView cardView = (SeasonCardView) viewHolder.view;
         // Remove references to images so that the garbage collector can free up memory
-        cardView.setMainImage(null);
+        cardView.setPosterImage(null);
     }
 }

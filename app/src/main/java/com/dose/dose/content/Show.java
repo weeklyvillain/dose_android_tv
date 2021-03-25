@@ -19,4 +19,6 @@ public class Show extends BaseContent implements Serializable {
                 ", backgroundImageUrl='" + getCardImageUrl(true) + '\'' +
                 '}';
     }
+
+
 }

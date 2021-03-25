@@ -5,6 +5,7 @@ import com.dose.dose.ApiClient.MovieAPIClient;
 import com.dose.dose.ApiClient.ShowAPIClient;
 import com.dose.dose.content.BaseContent;
 import com.dose.dose.content.Movie;
+import com.dose.dose.content.Season;
 import com.dose.dose.content.Show;
 
 import org.json.JSONArray;
@@ -142,6 +143,24 @@ public final class MovieList {
         return  list;
     }
 
+    public static List<Season> setupSeasons(ShowAPIClient showAPIClient, Show show) throws JSONException {
+        List<Season> list = new ArrayList<>();
+        JSONArray seasons = showAPIClient.getSeasons(show.getId());
+
+        if (seasons != null) {
+            for (int i=0;i<seasons.length();i++) {
+                Season obj = buildSeasonInfo(
+                        seasons.getJSONObject(i).getString("name"),
+                        Integer.parseInt(seasons.getJSONObject(i).getString("season_id")),
+                        seasons.getJSONObject(i).getString("poster_path"),
+                        show); // TODO: We should get the watchtime for these movies aswell
+
+                list.add(obj);
+            }
+        }
+        return  list;
+    }
+
     private static Movie buildMovieInfo(
             String id,
             String title,
@@ -163,5 +182,13 @@ public final class MovieList {
             String JWT,
             int watchTime) {
         return new Show(id, title, description, release, cardImageUrl, JWT, watchTime);
+    }
+
+    private static Season buildSeasonInfo(
+            String name,
+            int season_id,
+            String poster_path,
+            Show show) {
+        return new Season(name, season_id, poster_path, show);
     }
 }

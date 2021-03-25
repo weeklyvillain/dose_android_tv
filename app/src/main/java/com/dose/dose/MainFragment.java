@@ -39,6 +39,7 @@ import com.dose.dose.ApiClient.MovieAPIClient;
 import com.dose.dose.ApiClient.ShowAPIClient;
 import com.dose.dose.content.BaseContent;
 import com.dose.dose.content.Movie;
+import com.dose.dose.content.Show;
 
 import org.json.JSONException;
 
@@ -283,6 +284,18 @@ public class MainFragment extends BrowseSupportFragment {
                         DetailsActivity.SHARED_ELEMENT_NAME)
                         .toBundle();
                 getActivity().startActivity(intent, bundle);
+            } else if (item instanceof Show) {
+                Show show = (Show) item;
+                Log.d(TAG, "Item: " + item.toString());
+                Intent intent = new Intent(getActivity(), ShowDetailsActivity.class);
+                intent.putExtra(ShowDetailsActivity.SHOW, show);
+
+                Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                        getActivity(),
+                        itemViewHolder.view,
+                        ShowDetailsActivity.SHARED_ELEMENT_NAME)
+                        .toBundle();
+                getActivity().startActivity(intent, bundle);
             } else if (item instanceof String) {
                 if (((String) item).contains(getString(R.string.error_fragment))) {
                     Intent intent = new Intent(getActivity(), BrowseErrorActivity.class);
@@ -291,9 +304,12 @@ public class MainFragment extends BrowseSupportFragment {
                     Toast.makeText(getActivity(), "Logging Out", Toast.LENGTH_SHORT).show();
                     SharedPreferences settings = getActivity().getSharedPreferences("UserInfo", Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = settings.edit();
-                    editor.remove("JWT");
-                    editor.remove("ServerURL");
-                    editor.commit();
+                    editor.remove("MainServerJWT");
+                    editor.remove("MainServerURL");
+                    editor.remove("ContentServerURL");
+                    editor.remove("ContentServerJWT");
+                    editor.apply();
+                    getActivity().finish();
                 }
             }
         }

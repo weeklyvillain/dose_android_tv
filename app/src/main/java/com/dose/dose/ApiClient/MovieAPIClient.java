@@ -7,6 +7,8 @@ import com.dose.dose.ApiClient.DoseAPIClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.Locale;
+
 public class MovieAPIClient extends DoseAPIClient {
 
     public MovieAPIClient(String mainServerURL, String movieServerURL, String mainServerToken, String movieServerToken) {
@@ -84,5 +86,12 @@ public class MovieAPIClient extends DoseAPIClient {
     public int getDuration(String id) throws Exception {
         String url = super.movieServerURL + String.format("/api/video/%s/getDuration?type=movie&token=%s", id, super.getMovieJWT());
         return super.customGet(url, new JSONObject()).getInt("duration");
+    }
+
+    @Override
+    public void updateCurrentTime(String id, int time, int videoDuration) {
+        String url = String.format(Locale.US, "%s/api/video/%s/currenttime/set?type=movie&time=%d&videoDuration=%s&token=%s", super.movieServerURL, id, time, videoDuration, super.getMovieJWT());
+        Log.i("UPDATECURRENTTIME: ", url);
+        super.customGet(url, new JSONObject());
     }
 }

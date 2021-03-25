@@ -53,6 +53,8 @@ public class VideoActivity extends Activity {
     private int timeAtSeek = 0;
     private final Handler currentTimeHandler = new Handler();
 
+    private static final int CURRENT_TIME_UPDATE_FREQ = 10;
+
     private final Runnable currentTimeUpdater = new Runnable() {
         @Override
         public void run() {
@@ -60,6 +62,18 @@ public class VideoActivity extends Activity {
             int hours = playedInSeconds / 60 / 60;
             int minutes = (playedInSeconds / 60) % 60;
             int seconds = playedInSeconds % 60;
+
+            // Update current time on the server
+            if (playedInSeconds % CURRENT_TIME_UPDATE_FREQ == 0 && player.isPlaying()) {
+                // Run on seperate thread
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        movieAPIClient.updateCurrentTime(mSelectedMovie.getId(), playedInSeconds, mSelectedMovie.getDuration());
+                    }
+                });
+                thread.start();
+            }
 
             // Seekbar changes
             if (!isSeeking) {
@@ -114,6 +128,7 @@ public class VideoActivity extends Activity {
             public void run() {
                 try {
                     int duration = movieAPIClient.getDuration(mSelectedMovie.getId());
+                    mSelectedMovie.setDuration(duration);
                     int hours = duration / 60 / 60;
                     int minutes = (duration / 60) % 60;
                     int seconds = duration % 60;

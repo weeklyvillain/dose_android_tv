@@ -30,6 +30,19 @@ public class ShowAPIClient extends DoseAPIClient {
         return result;
     }
 
+    public JSONArray getSeasons(String id) {
+        String url = String.format("%s/api/series/%s?token=%s", super.movieServerURL, id, super.getMovieJWT());
+        JSONArray result;
+        try {
+            result = super.customGet(url, new JSONObject()).getJSONObject("result").getJSONArray("seasons");
+        } catch(Exception e) {
+            e.printStackTrace();
+            result = new JSONArray();
+        }
+        Log.i("ALLSEASONS: ", result.toString());
+        return result;
+    }
+
     @Override
     public JSONArray getOngoing() {
         return null;
@@ -43,6 +56,11 @@ public class ShowAPIClient extends DoseAPIClient {
     @Override
     public JSONArray getWatchlist() {
         return null;
+    }
+
+    @Override
+    public void updateCurrentTime(String id, int time, int videoDuration) {
+
     }
 }
 
