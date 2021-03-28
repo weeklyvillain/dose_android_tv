@@ -1,5 +1,8 @@
 package com.dose.dose.ApiClient;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.dose.dose.ApiClient.DoseAPIClient;
@@ -14,6 +17,17 @@ public class MovieAPIClient extends DoseAPIClient {
     public MovieAPIClient(String mainServerURL, String movieServerURL, String mainServerToken, String movieServerToken) {
         super(mainServerURL, movieServerURL, mainServerToken, movieServerToken);
         Log.i("HAIHAI", movieServerURL);
+    }
+
+    public static MovieAPIClient newInstance(Context context) {
+        SharedPreferences settings =
+                context.getSharedPreferences("UserInfo", 0);
+        String JWT = settings.getString("MainServerJWT", "").toString();
+        String mainServerURL = settings.getString("MainServerURL", "").toString();
+        String contentServerURL = settings.getString("ContentServerURL", "").toString();
+        String contentServerJWT = settings.getString("ContentServerJWT", "").toString();
+
+        return new MovieAPIClient(mainServerURL, contentServerURL, JWT, contentServerJWT);
     }
 
 

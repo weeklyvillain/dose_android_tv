@@ -50,6 +50,7 @@ public abstract class DoseAPIClient {
         this.movieJWT = movieJWT;
     }
 
+
     public static JSONObject login(String username, String password, String mainServerUrl) {
         JSONObject jsonParam = new JSONObject();
         try {

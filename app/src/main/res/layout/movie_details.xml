@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+        <variable
+            name="movie"
+            type="com.dose.dose.content.Movie" />
+    </data>
+
+    <RelativeLayout
+        android:id="@+id/realLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:baselineAligned="false"
+        android:background="#CC000000">
+
+
+        <ImageButton
+            android:id="@+id/addButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/playButton"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="0dp"
+            android:layout_toEndOf="@+id/continueButton"
+            android:src="@android:drawable/ic_menu_add" />
+
+        <TextView
+            android:id="@+id/addButtonLabel"
+            android:layout_width="57dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/continueButton"
+            android:layout_alignStart="@+id/addButton"
+            android:layout_alignEnd="@+id/addButton"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="0dp"
+            android:text="Add to watchlist"
+            android:textAlignment="center"
+            android:textSize="8sp" />
+
+        <ImageView
+            android:id="@+id/moviePoster"
+            android:layout_width="132dp"
+            android:layout_height="189dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="27dp"
+            android:layout_marginEnd="39dp" />
+
+        <TextView
+            android:id="@+id/movieTitle"
+            android:layout_width="286dp"
+            android:layout_height="42dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="127dp"
+            android:layout_marginTop="35dp"
+            android:text="@{movie.getTitle()}"
+            android:textSize="18sp" />
+
+        <RatingBar
+            android:id="@+id/movieRating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="?android:attr/ratingBarStyleSmall"
+            android:layout_below="@+id/movieTitle"
+            android:layout_alignStart="@+id/movieTitle"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="5dp"
+            android:numStars="5" />
+
+        <TextView
+            android:id="@+id/movieRuntime"
+            android:layout_width="wrap_content"
+            android:layout_height="19dp"
+            android:layout_alignTop="@+id/movieRating"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="0dp"
+            android:layout_toEndOf="@+id/movieRating"
+            android:text="..."
+            android:textSize="8sp" />
+
+        <TextView
+            android:id="@+id/movieGenre"
+            android:layout_width="124dp"
+            android:layout_height="19dp"
+            android:layout_alignTop="@+id/movieRuntime"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="0dp"
+            android:layout_toStartOf="@+id/moviePoster"
+            android:layout_toEndOf="@+id/movieRuntime"
+            android:text="@{movie.getGenres()}"
+            android:textSize="8sp" />
+
+        <TextView
+            android:id="@+id/movieDescription"
+            android:layout_width="352dp"
+            android:layout_height="72dp"
+            android:layout_below="@+id/movieGenre"
+            android:layout_alignStart="@+id/movieTitle"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="10dp"
+            android:text="@{movie.getDescription()}"
+            android:textSize="12sp" />
+
+        <ImageButton
+            android:id="@+id/playButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/movieDescription"
+            android:layout_alignStart="@+id/movieDescription"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="10dp"
+            android:src="@drawable/exo_icon_next" />
+
+        <ImageButton
+            android:id="@+id/continueButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/playButton"
+            android:layout_marginStart="26dp"
+            android:layout_marginTop="0dp"
+            android:layout_toEndOf="@+id/playButton"
+            android:src="@drawable/exo_icon_play" />
+
+        <TextView
+            android:id="@+id/playButtonLabel"
+            android:layout_width="57dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/playButton"
+            android:layout_alignStart="@+id/playButton"
+            android:layout_alignEnd="@+id/playButton"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="-1dp"
+            android:text="Play"
+            android:textAlignment="center"
+            android:textSize="8sp" />
+
+        <TextView
+            android:id="@+id/continueButtonLabel"
+            android:layout_width="57dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/continueButton"
+            android:layout_alignStart="@+id/continueButton"
+            android:layout_alignEnd="@+id/continueButton"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="0dp"
+            android:text="Continue"
+            android:textAlignment="center"
+            android:textSize="8sp" />
+
+    </RelativeLayout>
+</layout>

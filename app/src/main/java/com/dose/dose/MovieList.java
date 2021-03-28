@@ -49,6 +49,7 @@ public final class MovieList {
                             movies.getJSONObject(i).getString("overview"),
                             movies.getJSONObject(i).getString("release_date"),
                             movies.getJSONObject(i).getJSONArray("images"),
+                            movies.getJSONObject(i).getJSONArray("genres"),
                             apiClient.getMovieJWT(),
                             0); // TODO: We should get the watchtime for these movies aswell
                 } else {
@@ -58,6 +59,7 @@ public final class MovieList {
                             movies.getJSONObject(i).getString("overview"),
                             movies.getJSONObject(i).getString("first_air_date"),
                             movies.getJSONObject(i).getJSONArray("images"),
+                            movies.getJSONObject(i).getJSONArray("genres"),
                             apiClient.getMovieJWT(),
                             0); // TODO: We should get the watchtime for these movies aswell
                 }
@@ -80,6 +82,7 @@ public final class MovieList {
                         movies.getJSONObject(i).getString("overview"),
                         movies.getJSONObject(i).getString("release_date"),
                         movies.getJSONObject(i).getJSONArray("images"),
+                        movies.getJSONObject(i).getJSONArray("genres"),
                         movieAPIClient.getMovieJWT(),
                         0); // TODO: We should get the watchtime for these movies aswell
 
@@ -104,6 +107,7 @@ public final class MovieList {
                             content.getJSONObject(i).getString("overview"),
                             content.getJSONObject(i).getString("release_date"),
                             content.getJSONObject(i).getJSONArray("images"),
+                            content.getJSONObject(i).getJSONArray("genres"),
                             apiClient.getMovieJWT(),
                             watchTime);
                 } else {
@@ -113,6 +117,7 @@ public final class MovieList {
                             content.getJSONObject(i).getString("overview"),
                             content.getJSONObject(i).getString("release_date"),
                             content.getJSONObject(i).getJSONArray("images"),
+                            content.getJSONObject(i).getJSONArray("genres"),
                             apiClient.getMovieJWT(),
                             0); // TODO: We should get the watchtime for these movies aswell
                 }
@@ -134,6 +139,7 @@ public final class MovieList {
                         movies.getJSONObject(i).getString("overview"),
                         movies.getJSONObject(i).getString("release_date"),
                         movies.getJSONObject(i).getJSONArray("images"),
+                        movies.getJSONObject(i).getJSONArray("genres"),
                         movieAPIClient.getMovieJWT(),
                         0); // TODO: We should get the watchtime for these movies aswell
 
@@ -167,9 +173,10 @@ public final class MovieList {
             String description,
             String release,
             JSONArray cardImageUrl,
+            JSONArray genres,
             String JWT,
             int watchTime) {
-        Movie movie = new Movie(id, title, description,release , cardImageUrl, JWT, watchTime);
+        Movie movie = new Movie(id, title, description,release , cardImageUrl, genres, JWT, watchTime);
         return movie;
     }
 
@@ -179,9 +186,10 @@ public final class MovieList {
             String description,
             String release,
             JSONArray cardImageUrl,
+            JSONArray genres,
             String JWT,
             int watchTime) {
-        return new Show(id, title, description, release, cardImageUrl, JWT, watchTime);
+        return new Show(id, title, description, release, cardImageUrl, genres, JWT, watchTime);
     }
 
     private static Season buildSeasonInfo(

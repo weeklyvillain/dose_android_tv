@@ -36,17 +36,29 @@ public abstract class BaseContent implements Serializable  {
     protected String playBackUrl;
     protected int watchTime;
     protected int duration;
+    protected ArrayList<String> genres;
 
     public BaseContent() {
     }
 
-    public BaseContent(String id, String title, String overview, String release_date, JSONArray images, String JWT, int watchTime) {
+    public BaseContent(String id, String title, String overview, String release_date, JSONArray images, JSONArray genres, String JWT, int watchTime) {
         this.id = id;
         this.title = title;
         this.overview = overview;
         this.release_date = release_date;
         this.images = String.valueOf(images);
         this.watchTime = watchTime;
+        this.genres = new ArrayList<>();
+        try {
+            if (genres != null) {
+                for (int i = 0; i < genres.length(); i++) {
+                    this.genres.add(genres.get(i).toString());
+                }
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     public String getId() {
@@ -85,6 +97,17 @@ public abstract class BaseContent implements Serializable  {
         return watchTime;
     }
 
+    public String getReadableDuration() {
+        int hours = duration / 60 / 60;
+        int minutes = (duration / 60) % 60;
+        String text = "";
+        if (hours > 0) {
+            text += String.format("%dh", hours);
+        }
+        text += String.format(" %dmin", minutes);
+        return text;
+    }
+
     public int getDuration() {
         return duration;
     }
@@ -95,6 +118,20 @@ public abstract class BaseContent implements Serializable  {
 
     public String getImages() {
         return this.images;
+    }
+
+    public String getRuntime() {return "";}
+
+    public String getGenres() {
+        StringBuilder text = new StringBuilder();
+        for (int i = 0; i < genres.size(); i++) {
+            String genre = genres.get(i).substring(0, 1).toUpperCase() + genres.get(i).substring(1);
+            text.append(genre);
+            if (i != genres.size()-1) {
+                text.append(", ");
+            }
+        }
+        return text.toString();
     }
 
     public String getPosterImage(boolean originalQuality) {

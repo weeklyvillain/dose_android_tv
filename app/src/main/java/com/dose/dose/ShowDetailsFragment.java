@@ -4,8 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.leanback.app.DetailsFragment;
 import androidx.leanback.app.DetailsFragmentBackgroundController;
 import androidx.leanback.widget.Action;
@@ -30,9 +33,9 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.dose.dose.ApiClient.MovieAPIClient;
 import com.dose.dose.ApiClient.ShowAPIClient;
 import com.dose.dose.content.Season;
@@ -110,16 +113,20 @@ public class ShowDetailsFragment extends DetailsFragment {
     private void initializeBackground(Show data) {
         mDetailsBackground.enableParallax();
         Glide.with(getActivity())
-                .load(data.getCardImageUrl(true))
                 .asBitmap()
+                .load(data.getCardImageUrl(true))
                 .centerCrop()
                 .error(R.drawable.default_background)
-                .into(new SimpleTarget<Bitmap>() {
+                .into(new CustomTarget<Bitmap>() {
                     @Override
-                    public void onResourceReady(Bitmap bitmap,
-                                                GlideAnimation<? super Bitmap> glideAnimation) {
-                        mDetailsBackground.setCoverBitmap(bitmap);
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        mDetailsBackground.setCoverBitmap(resource);
                         mAdapter.notifyArrayItemRangeChanged(0, mAdapter.size());
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+
                     }
                 });
     }
@@ -132,16 +139,20 @@ public class ShowDetailsFragment extends DetailsFragment {
         int width = convertDpToPixel(getActivity().getApplicationContext(), DETAIL_THUMB_WIDTH);
         int height = convertDpToPixel(getActivity().getApplicationContext(), DETAIL_THUMB_HEIGHT);
         Glide.with(getActivity())
+                .asBitmap()
                 .load(mSelectedShow.getPosterImage(true))
                 .error(R.drawable.default_background)
-                .into(new SimpleTarget<GlideDrawable>(width, height) {
+                .into(new CustomTarget<Bitmap>(width, height) {
                     @Override
-                    public void onResourceReady(GlideDrawable resource,
-                                                GlideAnimation<? super GlideDrawable>
-                                                        glideAnimation) {
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                         Log.d(TAG, "details overview card image url ready: " + resource);
-                        row.setImageDrawable(resource);
+                        row.setImageBitmap(getContext(), resource);
                         mAdapter.notifyArrayItemRangeChanged(0, mAdapter.size());
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+
                     }
                 });
 

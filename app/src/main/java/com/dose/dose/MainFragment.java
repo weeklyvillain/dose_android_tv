@@ -3,11 +3,14 @@ package com.dose.dose;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.leanback.app.BackgroundManager;
 import androidx.leanback.app.BrowseFragment;
 import androidx.leanback.app.BrowseSupportFragment;
@@ -32,14 +35,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.dose.dose.ApiClient.MovieAPIClient;
 import com.dose.dose.ApiClient.ShowAPIClient;
 import com.dose.dose.content.BaseContent;
 import com.dose.dose.content.Movie;
 import com.dose.dose.content.Show;
+import com.dose.dose.details.MovieDetailsActivity;
+import com.dose.dose.details.ShowDetailsActivity;
 
 import org.json.JSONException;
 
@@ -245,15 +250,20 @@ public class MainFragment extends BrowseSupportFragment {
         int width = mMetrics.widthPixels;
         int height = mMetrics.heightPixels;
         Glide.with(getActivity())
+                .asBitmap()
                 .load(uri)
                 .centerCrop()
                 .error(mDefaultBackground)
-                .into(new SimpleTarget<GlideDrawable>(width, height) {
+                .into(new CustomTarget<Bitmap>(width, height) {
                     @Override
-                    public void onResourceReady(GlideDrawable resource,
-                                                GlideAnimation<? super GlideDrawable>
-                                                        glideAnimation) {
-                        mBackgroundManager.setDrawable(resource);
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        mBackgroundManager.setBitmap(resource);
+
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+
                     }
                 });
         mBackgroundTimer.cancel();
@@ -275,25 +285,25 @@ public class MainFragment extends BrowseSupportFragment {
             if (item instanceof Movie) {
                 Movie movie = (Movie) item;
                 Log.d(TAG, "Item: " + item.toString());
-                Intent intent = new Intent(getActivity(), DetailsActivity.class);
-                intent.putExtra(DetailsActivity.MOVIE, movie);
+                Intent intent = new Intent(getActivity(), MovieDetailsActivity.class);
+                intent.putExtra(MovieDetailsActivity.MOVIE, movie);
 
                 Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
                         getActivity(),
                         itemViewHolder.view,
-                        DetailsActivity.SHARED_ELEMENT_NAME)
+                        MovieDetailsActivity.SHARED_ELEMENT_NAME)
                         .toBundle();
                 getActivity().startActivity(intent, bundle);
             } else if (item instanceof Show) {
                 Show show = (Show) item;
                 Log.d(TAG, "Item: " + item.toString());
-                Intent intent = new Intent(getActivity(), ShowDetailsActivity.class);
-                intent.putExtra(ShowDetailsActivity.SHOW, show);
+                Intent intent = new Intent(getActivity(), com.dose.dose.details.ShowDetailsActivity.class);
+                intent.putExtra(com.dose.dose.details.ShowDetailsActivity.SHOW, show);
 
                 Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
                         getActivity(),
                         itemViewHolder.view,
-                        ShowDetailsActivity.SHARED_ELEMENT_NAME)
+                        com.dose.dose.details.ShowDetailsActivity.SHARED_ELEMENT_NAME)
                         .toBundle();
                 getActivity().startActivity(intent, bundle);
             } else if (item instanceof String) {
