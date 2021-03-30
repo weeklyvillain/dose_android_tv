@@ -1,5 +1,7 @@
 package com.dose.dose;
 
+import android.util.Log;
+
 import com.dose.dose.ApiClient.DoseAPIClient;
 import com.dose.dose.ApiClient.MovieAPIClient;
 import com.dose.dose.ApiClient.ShowAPIClient;
@@ -155,6 +157,7 @@ public final class MovieList {
 
         if (seasons != null) {
             for (int i=0;i<seasons.length();i++) {
+                Log.i("JSONOBJECTOVERVIEW: ", seasons.getJSONObject(i).toString());
                 Season obj = buildSeasonInfo(
                         seasons.getJSONObject(i).getString("name"),
                         Integer.parseInt(seasons.getJSONObject(i).getString("season_id")),

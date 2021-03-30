@@ -8,6 +8,9 @@ import com.google.gson.JsonObject;
 
 import android.util.Log;
 
+import androidx.databinding.BaseObservable;
+import androidx.databinding.library.baseAdapters.BR;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -25,7 +28,7 @@ import org.json.JSONArray;
 
 import java.io.Serializable;
 
-public abstract class BaseContent implements Serializable  {
+public abstract class BaseContent extends BaseObservable implements Serializable  {
     static final long serialVersionUID = 727566175075960653L;
 
     protected String id;
@@ -36,6 +39,7 @@ public abstract class BaseContent implements Serializable  {
     protected String playBackUrl;
     protected int watchTime;
     protected int duration;
+    protected float voteAverage;
     protected ArrayList<String> genres;
 
     public BaseContent() {
@@ -83,6 +87,7 @@ public abstract class BaseContent implements Serializable  {
 
     public void setDescription(String overview) {
         this.overview = overview;
+        notifyPropertyChanged(BR._all);
     }
 
     public String getReleaseDate() {
@@ -174,5 +179,14 @@ public abstract class BaseContent implements Serializable  {
         Gson g = new Gson();
 
         this.images = g.toJson(images);
+    }
+
+    public float getVoteAverage() {
+        return voteAverage;
+    }
+
+    public void setVoteAverage(float voteAverage) {
+        this.voteAverage = voteAverage;
+        notifyPropertyChanged(BR._all);
     }
 }

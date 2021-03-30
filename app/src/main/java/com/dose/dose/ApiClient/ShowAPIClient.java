@@ -56,6 +56,20 @@ public class ShowAPIClient extends DoseAPIClient {
         return result;
     }
 
+    public JSONObject getSeasonInformation(String showId, String season) {
+        String url = String.format("%s/api/series/%s/season/%s?token=%s", super.movieServerURL, showId, season, super.getMovieJWT());
+
+        JSONObject result;
+        try {
+            result = super.customGet(url, new JSONObject()).getJSONObject("result");
+        } catch(Exception e) {
+            e.printStackTrace();
+            result = new JSONObject();
+        }
+        Log.i("SEASONINFORMATION: ", result.toString());
+        return result;
+    }
+
     @Override
     public JSONArray getOngoing() {
         return null;

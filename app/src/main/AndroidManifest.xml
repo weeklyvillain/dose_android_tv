@@ -24,10 +24,11 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:supportsRtl="true"
         android:theme="@style/Theme.Dose">
-        <activity android:name=".details.ShowDetailsActivity"></activity>
+        <activity android:name=".details.SeasonDetailsActivity"></activity>
+        <activity android:name=".details.ShowDetailsActivity" />
         <activity
             android:name=".details.MovieDetailsActivity"
-            android:theme="@android:style/Theme.NoTitleBar"></activity>
+            android:theme="@android:style/Theme.NoTitleBar" />
         <activity
             android:name=".ShowDetailsActivity"
             android:label="@string/title_activity_show_details" />

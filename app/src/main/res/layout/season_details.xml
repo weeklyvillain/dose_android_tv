@@ -3,8 +3,8 @@
 
     <data>
         <variable
-            name="show"
-            type="com.dose.dose.content.Show" />
+            name="season"
+            type="com.dose.dose.content.Season" />
     </data>
 
     <RelativeLayout
@@ -16,7 +16,7 @@
 
 
         <ImageView
-            android:id="@+id/showPoster"
+            android:id="@+id/seasonPoster"
             android:layout_width="132dp"
             android:layout_height="189dp"
             android:layout_alignParentTop="true"
@@ -32,42 +32,41 @@
             android:layout_alignParentTop="true"
             android:layout_marginStart="127dp"
             android:layout_marginTop="35dp"
-            android:text="@{show.getTitle()}"
+            android:text="@{season.getFullTitle()}"
             android:textSize="18sp" />
 
         <RatingBar
-            android:id="@+id/showRating"
+            android:id="@+id/seasonRating"
             style="?android:attr/ratingBarStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/showTitle"
             android:layout_alignStart="@+id/showTitle"
             android:layout_marginStart="0dp"
-            android:layout_marginTop="5dp"
-            android:numStars="5" />
+            android:layout_marginTop="5dp"/>
 
         <TextView
             android:id="@+id/showGenre"
             android:layout_width="124dp"
             android:layout_height="19dp"
-            android:layout_alignTop="@+id/showRating"
+            android:layout_alignTop="@+id/seasonRating"
             android:layout_marginStart="5dp"
             android:layout_marginTop="0dp"
             android:layout_marginEnd="0dp"
-            android:layout_toStartOf="@+id/showPoster"
-            android:layout_toEndOf="@+id/showRating"
-            android:text="@{show.getGenres()}"
+            android:layout_toStartOf="@+id/seasonPoster"
+            android:layout_toEndOf="@+id/seasonRating"
+            android:text="@{season.getGenres()}"
             android:textSize="8sp" />
 
         <TextView
             android:id="@+id/showDescription"
             android:layout_width="352dp"
             android:layout_height="72dp"
-            android:layout_below="@+id/showRating"
-            android:layout_alignStart="@+id/showRating"
+            android:layout_below="@+id/seasonRating"
+            android:layout_alignStart="@+id/seasonRating"
             android:layout_marginStart="0dp"
             android:layout_marginTop="10dp"
-            android:text="@{show.getDescription()}"
+            android:text="@{season.getDescription()}"
             android:textSize="12sp" />
 
         <ImageButton
@@ -94,28 +93,27 @@
             android:textAlignment="center"
             android:textSize="8sp" />
 
-
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/seasons"
+            android:id="@+id/episodes"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/seasonsLabel"
-            android:layout_alignStart="@+id/seasonsLabel"
+            android:layout_below="@+id/episodesLabel"
+            android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginStart="0dp"
+            android:layout_marginStart="25dp"
             android:layout_marginTop="5dp"
             android:layout_marginEnd="25dp"
             android:clipToPadding="false" />
 
         <TextView
-            android:id="@+id/seasonsLabel"
+            android:id="@+id/episodesLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/playButtonLabel"
-            android:layout_alignStart="@+id/playButtonLabel"
-            android:layout_marginStart="0dp"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="25dp"
             android:layout_marginTop="50dp"
-            android:text="Seasons" />
+            android:text="Episodes" />
 
 
     </RelativeLayout>
