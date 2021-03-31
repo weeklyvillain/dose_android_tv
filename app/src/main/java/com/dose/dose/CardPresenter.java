@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.dose.dose.ApiClient.DoseAPIClient;
 import com.dose.dose.content.BaseContent;
+import com.dose.dose.content.Episode;
 import com.dose.dose.content.Movie;
 import com.dose.dose.content.Season;
 import com.dose.dose.content.Show;
@@ -39,20 +40,27 @@ public class CardPresenter extends Presenter {
         BaseContent content;
         if (item instanceof Movie) {
             content = (Movie) item;
-        } else if (item instanceof Show){
+        } else if (item instanceof Show) {
             content = (Show) item;
+        } else if (item instanceof Episode) {
+            content = (Episode) item;
         } else {
             content = (Season) item;
         }
         MovieCardView cardView = (MovieCardView) viewHolder.view;
 
         cardView.setOnFocusChangeListener((view, hasFocus) -> {
-            if(hasFocus && !(item instanceof Season)) {
+            if(hasFocus && !(item instanceof Season || item instanceof Episode)) {
                 cardView.setTitleText(content.getTitle());
                 cardView.setContentText(content.getDescription());
+            } else if (hasFocus && item instanceof Episode) {
+                cardView.setTitleText(((Episode) item).getTitle());
+                String text = String.format("Season %d - Episode %d", ((Episode) item).getSeasonNumber(), ((Episode) item).getEpisodeNumber());
+                cardView.setSeasonAndEpisode(text);
             } else {
                 cardView.setTitleText("");
                 cardView.setContentText("");
+                cardView.setSeasonAndEpisode("");
             }
         });
 

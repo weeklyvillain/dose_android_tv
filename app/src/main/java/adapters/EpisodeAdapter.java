@@ -1,7 +1,9 @@
 package adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,8 +16,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.dose.dose.R;
+import com.dose.dose.VideoActivity;
 import com.dose.dose.content.Episode;
 import com.dose.dose.content.Season;
+import com.dose.dose.details.SeasonDetailsActivity;
 
 import java.util.List;
 
@@ -96,6 +100,12 @@ public class EpisodeAdapter extends RecyclerView.Adapter<EpisodeAdapter.EpisodeV
             if (getAdapterPosition() == RecyclerView.NO_POSITION) return;
             Episode episode = getItem(getAdapterPosition());
             Log.i("SELECTED: ", episode.toString());
+
+            Intent intent = new Intent(context, VideoActivity.class);
+            intent.putExtra(VideoActivity.TYPE, VideoActivity.Type.EPISODE);
+            intent.putExtra(VideoActivity.CONTINUE_WATCHING, false);
+            intent.putExtra(VideoActivity.EPISODE, episode);
+            context.startActivity(intent);
 
         }
     }

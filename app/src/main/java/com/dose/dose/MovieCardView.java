@@ -12,10 +12,13 @@ import android.widget.TextView;
 
 import androidx.leanback.widget.BaseCardView;
 
+import org.w3c.dom.Text;
+
 public class MovieCardView extends BaseCardView {
 
     private TextView _titleView;
     private TextView contentText;
+    private TextView seasonAndEpisode;
     private ImageView mainImageView;
 
 
@@ -36,6 +39,8 @@ public class MovieCardView extends BaseCardView {
         mainImageView = (ImageView) findViewById(R.id.backdrop);
         _titleView = (TextView) findViewById(R.id.title);
         contentText = (TextView) findViewById(R.id.contentText);
+
+        seasonAndEpisode = (TextView) findViewById(R.id.seasonAndEpisode);
     }
 
     /**
@@ -62,6 +67,13 @@ public class MovieCardView extends BaseCardView {
             return;
         }
         contentText.setText(text);
+    }
+
+    public void setSeasonAndEpisode(CharSequence text) {
+        if (seasonAndEpisode == null) {
+            return;
+        }
+        seasonAndEpisode.setText(text);
     }
 
     public ImageView getMainImageView() {

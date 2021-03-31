@@ -13,7 +13,11 @@ import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.dose.dose.ApiClient.DoseAPIClient;
 import com.dose.dose.ApiClient.MovieAPIClient;
+import com.dose.dose.ApiClient.ShowAPIClient;
+import com.dose.dose.content.BaseContent;
+import com.dose.dose.content.Episode;
 import com.dose.dose.content.Movie;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
@@ -32,8 +36,20 @@ import com.google.android.exoplayer2.util.Util;
 
 public class VideoActivity extends Activity {
     //private static VideoView videoview;
-    private Movie mSelectedMovie;
-    private MovieAPIClient movieAPIClient;
+    public static String TYPE = "Type";
+    public static String MOVIE = "Movie";
+    public static String CONTINUE_WATCHING = "ContinueWatching";
+    public static String EPISODE = "Episode";
+    public static String SHARED_ELEMENT_NAME ="hero";
+
+    private BaseContent selectedContent;
+    private Type selectedType;
+    private boolean continueWatching;
+    public enum Type {
+        EPISODE,
+        MOVIE
+    };
+    private DoseAPIClient apiClient;
     private SimpleExoPlayer player;
     private MediaItem mediaItem;
     // TextViews
@@ -69,7 +85,7 @@ public class VideoActivity extends Activity {
                 Thread thread = new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        movieAPIClient.updateCurrentTime(mSelectedMovie.getId(), playedInSeconds, mSelectedMovie.getDuration());
+                        apiClient.updateCurrentTime(selectedContent.getId(), playedInSeconds, selectedContent.getDuration());
                     }
                 });
                 thread.start();
@@ -105,30 +121,24 @@ public class VideoActivity extends Activity {
         controlsLayout = findViewById(R.id.controlsLayout);
         playPauseButton = findViewById(R.id.imageButton);
 
-        mSelectedMovie =
-                (Movie) getIntent().getSerializableExtra(DetailsActivity.MOVIE);
-
-        SharedPreferences settings = getSharedPreferences("UserInfo", 0);
-        String JWT = settings.getString("MainServerJWT", "").toString();
-        String mainServerURL = settings.getString("MainServerURL", "").toString();
-        String contentServerURL = settings.getString("ContentServerURL", "").toString();
-        String contentServerJWT = settings.getString("ContentServerJWT", "").toString();
-
-        movieAPIClient = new MovieAPIClient(mainServerURL, contentServerURL, JWT, contentServerJWT);
-
-
-        movieAPIClient = new MovieAPIClient(mainServerURL,
-                contentServerURL,
-                JWT,
-                contentServerJWT);
+        selectedType = (Type) getIntent().getSerializableExtra(VideoActivity.TYPE);
+        continueWatching = (boolean) getIntent().getSerializableExtra(VideoActivity.CONTINUE_WATCHING);
+        if (selectedType == Type.MOVIE) {
+            selectedContent =
+                    (Movie) getIntent().getSerializableExtra(VideoActivity.MOVIE);
+            apiClient = MovieAPIClient.newInstance(this);
+        } else {
+            selectedContent = (Episode) getIntent().getSerializableExtra(VideoActivity.EPISODE);
+            apiClient = ShowAPIClient.newInstance(this);
+        }
 
         // Get the duration of the video
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    int duration = movieAPIClient.getDuration(mSelectedMovie.getId());
-                    mSelectedMovie.setDuration(duration);
+                    int duration = apiClient.getDuration(selectedContent.getId());
+                    selectedContent.setDuration(duration);
                     int hours = duration / 60 / 60;
                     int minutes = (duration / 60) % 60;
                     int seconds = duration % 60;
@@ -138,6 +148,7 @@ public class VideoActivity extends Activity {
                     durationTextView.invalidate();
                 } catch (Exception e) {
                     Log.i("GetDurationError: ", e.toString());
+                    e.printStackTrace();
                     // Do something
                 }
 
@@ -206,12 +217,13 @@ public class VideoActivity extends Activity {
         );
 
 
+        timeAtSeek = continueWatching ? selectedContent.getWatchTime() : 0;
         DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this, null, httpDataSourceFactory);
         MediaSource mediaSource = new DefaultMediaSourceFactory(dataSourceFactory).setLoadErrorHandlingPolicy(getMyErrorHandlingPolicy())
                 .createMediaSource(
                         MediaItem.fromUri(
                                 Uri.parse(
-                                        movieAPIClient.getPlaybackURL(mSelectedMovie.getId(), 0, "1080P")
+                                        apiClient.getPlaybackURL(selectedContent.getId(), timeAtSeek, "1080P")
                                 )
                         )
         );
@@ -264,7 +276,7 @@ public class VideoActivity extends Activity {
                 .createMediaSource(
                         MediaItem.fromUri(
                                 Uri.parse(
-                                        movieAPIClient.getPlaybackURL(mSelectedMovie.getId(), seekTo, "1080P")
+                                        apiClient.getPlaybackURL(selectedContent.getId(), seekTo, "1080P")
                                 )
                         )
                 );

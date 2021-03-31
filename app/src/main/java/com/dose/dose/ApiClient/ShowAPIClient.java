@@ -7,6 +7,8 @@ import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.Locale;
+
 public class ShowAPIClient extends DoseAPIClient {
 
     public ShowAPIClient(String mainServerURL, String movieServerURL, String mainServerToken, String movieServerToken) {
@@ -26,7 +28,8 @@ public class ShowAPIClient extends DoseAPIClient {
 
     @Override
     public String getPlaybackURL(String id, int startPos, String res) {
-        return this.movieServerURL + String.format("/api/video/%s?type=show&token=%s&start=%d&quality=%s", id, super.getMovieJWT(), startPos, res);
+        Log.i("PlaybackURL: ", this.movieServerURL + String.format("/api/video/%s?type=serie&token=%s&start=%d&quality=%s", id, super.getMovieJWT(), startPos, res));
+        return this.movieServerURL + String.format("/api/video/%s?type=serie&token=%s&start=%d&quality=%s", id, super.getMovieJWT(), startPos, res);
     }
 
     @Override
@@ -72,12 +75,34 @@ public class ShowAPIClient extends DoseAPIClient {
 
     @Override
     public JSONArray getOngoing() {
-        return null;
+        String url = super.movieServerURL + String.format("/api/series/list/ongoing?limit=20&token=%s", this.movieJWT);
+
+        JSONObject result;
+        JSONArray ongoing;
+        JSONArray upcoming;
+
+        JSONArray finalResults = new JSONArray();
+        try {
+            result = super.customGet(url, new JSONObject());
+            ongoing = result.getJSONArray("ongoing");
+            upcoming = result.getJSONArray("upcoming");
+            finalResults.put(0, ongoing);
+            finalResults.put(1, upcoming);
+
+            Log.i("SHOWONGOING: ", ongoing.toString());
+            Log.i("SHOWUPCOMING: ", upcoming.toString());
+
+        } catch(Exception e) {
+            e.printStackTrace();
+            finalResults = new JSONArray();
+        }
+        return finalResults;
     }
 
     @Override
     public int getDuration(String id) throws Exception {
-        return 0;
+        String url = super.movieServerURL + String.format("/api/video/%s/getDuration?type=serie&token=%s", id, super.getMovieJWT());
+        return super.customGet(url, new JSONObject()).getInt("duration");
     }
 
     @Override
@@ -87,7 +112,9 @@ public class ShowAPIClient extends DoseAPIClient {
 
     @Override
     public void updateCurrentTime(String id, int time, int videoDuration) {
-
+        String url = String.format(Locale.US, "%s/api/video/%s/currenttime/set?type=serie&time=%d&videoDuration=%s&token=%s", super.movieServerURL, id, time, videoDuration, super.getMovieJWT());
+        Log.i("UPDATECURRENTTIME: ", url);
+        super.customGet(url, new JSONObject());
     }
 }
 

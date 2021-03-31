@@ -41,6 +41,7 @@ import com.bumptech.glide.request.transition.Transition;
 import com.dose.dose.ApiClient.MovieAPIClient;
 import com.dose.dose.ApiClient.ShowAPIClient;
 import com.dose.dose.content.BaseContent;
+import com.dose.dose.content.Episode;
 import com.dose.dose.content.Movie;
 import com.dose.dose.content.Show;
 import com.dose.dose.details.MovieDetailsActivity;
@@ -128,6 +129,15 @@ public class MainFragment extends BrowseSupportFragment {
                         listRowAdapter.add(contentList.get(j));
                     }
                     header = new HeaderItem(rows++, "Ongoing");
+                    rowsAdapter.add(new ListRow(header, listRowAdapter));
+
+                    // ONGOING (SHOWS)
+                    contentList = MovieList.setupOngoing(showAPIClient);
+                    listRowAdapter = new ArrayObjectAdapter(cardPresenter);
+                    for (int j = 0; j < Math.min(contentList.size(), 20); j++) {
+                        listRowAdapter.add(contentList.get(j));
+                    }
+                    header = new HeaderItem(rows++, "Ongoing Shows");
                     rowsAdapter.add(new ListRow(header, listRowAdapter));
 
                     // WATCHLIST (MOVIES)
@@ -306,6 +316,18 @@ public class MainFragment extends BrowseSupportFragment {
                         com.dose.dose.details.ShowDetailsActivity.SHARED_ELEMENT_NAME)
                         .toBundle();
                 getActivity().startActivity(intent, bundle);
+            } else if (item instanceof Episode) {
+                Intent intent = new Intent(getActivity(), VideoActivity.class);
+                intent.putExtra(VideoActivity.TYPE, VideoActivity.Type.EPISODE);
+                intent.putExtra(VideoActivity.CONTINUE_WATCHING, true);
+                intent.putExtra(VideoActivity.EPISODE, (Episode) item);
+
+                Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                        getActivity(),
+                        itemViewHolder.view,
+                        VideoActivity.SHARED_ELEMENT_NAME)
+                        .toBundle();
+                getActivity().startActivity(intent, bundle);
             } else if (item instanceof String) {
                 if (((String) item).contains(getString(R.string.error_fragment))) {
                     Intent intent = new Intent(getActivity(), BrowseErrorActivity.class);
@@ -332,8 +354,10 @@ public class MainFragment extends BrowseSupportFragment {
                 Object item,
                 RowPresenter.ViewHolder rowViewHolder,
                 Row row) {
-            if (item instanceof Movie) {
-                mBackgroundUri = ((Movie) item).getCardImageUrl(true);
+            if (item instanceof Movie ||
+                item instanceof Show  ||
+                item instanceof Episode) {
+                mBackgroundUri = ((BaseContent) item).getCardImageUrl(true);
                 Log.i("INSTANCEOF", mBackgroundUri);
                 startBackgroundTimer();
             }

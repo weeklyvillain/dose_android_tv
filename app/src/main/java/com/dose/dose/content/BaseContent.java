@@ -37,6 +37,7 @@ public abstract class BaseContent extends BaseObservable implements Serializable
     protected String release_date;
     protected String images;
     protected String playBackUrl;
+    protected double lastWatched;
     protected int watchTime;
     protected int duration;
     protected float voteAverage;

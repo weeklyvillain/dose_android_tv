@@ -6,12 +6,14 @@ import com.dose.dose.ApiClient.DoseAPIClient;
 import com.dose.dose.ApiClient.MovieAPIClient;
 import com.dose.dose.ApiClient.ShowAPIClient;
 import com.dose.dose.content.BaseContent;
+import com.dose.dose.content.Episode;
 import com.dose.dose.content.Movie;
 import com.dose.dose.content.Season;
 import com.dose.dose.content.Show;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -100,9 +102,9 @@ public final class MovieList {
 
         if (content != null) {
             for (int i=0;i<content.length();i++) {
-                int watchTime = content.getJSONObject(i).getInt("watchtime");
                 BaseContent obj;
                 if (apiClient instanceof MovieAPIClient) {
+                    int watchTime = content.getJSONObject(i).getInt("watchtime");
                     obj = buildMovieInfo(
                             content.getJSONObject(i).getString("id"),
                             content.getJSONObject(i).getString("title"),
@@ -112,18 +114,33 @@ public final class MovieList {
                             content.getJSONObject(i).getJSONArray("genres"),
                             apiClient.getMovieJWT(),
                             watchTime);
+                    list.add(obj);
                 } else {
-                    obj = buildShowInfo(
-                            content.getJSONObject(i).getString("id"),
-                            content.getJSONObject(i).getString("title"),
-                            content.getJSONObject(i).getString("overview"),
-                            content.getJSONObject(i).getString("release_date"),
-                            content.getJSONObject(i).getJSONArray("images"),
-                            content.getJSONObject(i).getJSONArray("genres"),
-                            apiClient.getMovieJWT(),
-                            0); // TODO: We should get the watchtime for these movies aswell
+                    // TODO: This places upcoming episodes at the end, we have to sort them based last_watched
+                    boolean ongoing = i == 0;
+
+                    // If we are getting ongoing shows the apiClient will return both ongoing and upcoming. It will look something like this:
+                    // content = [{ongoing}, {upcoming}] Where ongoing is a JSONObject and upcoming is another upcoming
+                    for (int j = 0; j < content.getJSONArray(i).length(); j++) {
+                        JSONObject currentJsonObj = (JSONObject) content.getJSONArray(i).get(j);
+                        int timeWatched = ongoing ? currentJsonObj.getInt("time_watched") : 0;
+                        int totalTime = ongoing ? currentJsonObj.getInt("total_time") : -1;
+                            //(String name, String overview, JSONArray images, int episodeNumber, int internalId, int watchTime, int totalTime, int seasonNumber, int showId, int lastWatched)
+                        obj = Episode.newInstance(
+                                currentJsonObj.getString("name"),
+                                currentJsonObj.getString("overview"),
+                                currentJsonObj.getJSONArray("images"),
+                                currentJsonObj.getInt("episode_number"),
+                                Integer.valueOf(currentJsonObj.getString("internalepisodeid")),
+                                timeWatched,
+                                totalTime,
+                                currentJsonObj.getInt("season_number"),
+                                currentJsonObj.getInt("show_id"),
+                                Double.valueOf(currentJsonObj.getString("last_watched"))
+                        );
+                        list.add(obj);
+                    }
                 }
-                list.add(obj);
             }
         }
         return  list;

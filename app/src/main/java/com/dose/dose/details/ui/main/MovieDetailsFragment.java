@@ -82,7 +82,9 @@ public class MovieDetailsFragment extends Fragment {
             public void onClick(View v) {
                 Log.i(TAG, "KLICKAD");
                 Intent intent = new Intent(getActivity(), VideoActivity.class);
-                intent.putExtra(MovieDetailsActivity.MOVIE, movie);
+                intent.putExtra(VideoActivity.TYPE, VideoActivity.Type.MOVIE);
+                intent.putExtra(VideoActivity.CONTINUE_WATCHING, false);
+                intent.putExtra(VideoActivity.MOVIE, movie);
                 startActivity(intent);
             }
         });
