@@ -77,6 +77,10 @@ public class Season extends BaseContent implements Serializable {
         notifyPropertyChanged(BR.season);
     }
 
+    public String getShowId() {
+        return this.show.getId();
+    }
+
     public List<Episode> getEpisodes() {
         return episodes;
     }

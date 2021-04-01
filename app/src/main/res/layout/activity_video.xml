@@ -8,8 +8,46 @@
     tools:context=".VideoActivity">
 
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/nextEpisodeLayout"
+        android:layout_width="302dp"
+        android:layout_height="69dp"
+        android:layout_marginEnd="15dp"
+        android:background="#CC000000"
+        android:elevation="10dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/controlsLayout"
+        app:layout_constraintEnd_toEndOf="parent">
 
+        <TextView
+            android:id="@+id/nextEpisodeLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:text="Next episode starts in "
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
+        <TextView
+            android:id="@+id/nextEpisodeSecondsLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="5 seconds"
+            app:layout_constraintStart_toEndOf="@+id/nextEpisodeLabel"
+            app:layout_constraintTop_toTopOf="@+id/nextEpisodeLabel" />
+
+        <ImageButton
+            android:id="@+id/playNextEpisodeBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="5dp"
+            android:nextFocusDown="@id/imageButton"
+            android:src="@drawable/lb_ic_skip_next"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/controlsLayout"
@@ -26,7 +64,7 @@
             android:layout_height="48dp"
             android:nextFocusLeft="@id/imageButton"
             android:nextFocusRight="@id/imageButton"
-            android:nextFocusUp="@id/imageButton"
+            android:nextFocusUp="@id/playNextEpisodeBtn"
             android:nextFocusDown="@id/seekBar"
             android:onClick="togglePlay"
             android:src="@drawable/exo_controls_play"

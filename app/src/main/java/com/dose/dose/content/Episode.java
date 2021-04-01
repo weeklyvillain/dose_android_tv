@@ -2,7 +2,10 @@ package com.dose.dose.content;
 
 import android.os.Bundle;
 
+import com.dose.dose.ApiClient.ShowAPIClient;
+
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.Serializable;
 
@@ -80,6 +83,14 @@ public class Episode extends BaseContent implements Serializable {
             return Integer.valueOf(this.season.getId());
         } else {
             return seasonNumber;
+        }
+    }
+
+    public String getShowId() {
+        if (this.currentInfoLevel == InfoLevel.FULL.FULL) {
+            return this.season.getShowId();
+        } else {
+            return String.valueOf(this.showId);
         }
     }
 

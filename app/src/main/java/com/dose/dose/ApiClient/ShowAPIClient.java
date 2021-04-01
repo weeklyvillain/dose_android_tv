@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.dose.dose.content.Episode;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -115,6 +117,53 @@ public class ShowAPIClient extends DoseAPIClient {
         String url = String.format(Locale.US, "%s/api/video/%s/currenttime/set?type=serie&time=%d&videoDuration=%s&token=%s", super.movieServerURL, id, time, videoDuration, super.getMovieJWT());
         Log.i("UPDATECURRENTTIME: ", url);
         super.customGet(url, new JSONObject());
+    }
+
+    public Episode getNextEpisode(Episode episode) {
+        String url = String.format(Locale.US, "%s/api/series/getNextEpisode?serie_id=%s&season=%d&episode=%d&token=%s", super.movieServerURL, episode.getShowId(), episode.getSeasonNumber(), episode.getEpisodeNumber(), super.getMovieJWT());
+        Log.i("GETNEXTEPISODE: ", url);
+
+        // Get the episode_number and season number for the next episode
+        JSONObject nextEpisodeInfo = super.customGet(url, new JSONObject());
+        boolean foundNextEpisode = false;
+        try {
+            foundNextEpisode = nextEpisodeInfo.getBoolean("foundEpisode");
+        } catch (Exception e) {
+            // Something has gone wrong, server down? Old access token?
+            e.printStackTrace();
+            return null;
+        }
+
+        if (foundNextEpisode) {
+            try {
+                url = String.format(Locale.US, "%s/api/series/%s/season/%d/episode/%d?token=%s",
+                        super.movieServerURL,
+                        episode.getShowId(),
+                        nextEpisodeInfo.getInt("season"),
+                        nextEpisodeInfo.getInt("episode"),
+                        super.getMovieJWT());
+                JSONObject fullNextEpisodeJson = super.customGet(url, new JSONObject());
+                fullNextEpisodeJson = fullNextEpisodeJson.getJSONObject("result");
+                return Episode.newInstance(
+                        fullNextEpisodeJson.getString("name"),
+                        fullNextEpisodeJson.getString("overview"),
+                        fullNextEpisodeJson.getJSONArray("images"),
+                        nextEpisodeInfo.getInt("episode"),
+                        Integer.valueOf(fullNextEpisodeJson.getString("internalepisodeid")),
+                        0,
+                        -1,
+                        nextEpisodeInfo.getInt("season"),
+                        Integer.valueOf(episode.getShowId()),
+                        0);
+            } catch (Exception e) {
+                // Something has gone wrong, server down? Old access token?
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        // If the server doesn't have the next episode
+        return null;
     }
 }
 

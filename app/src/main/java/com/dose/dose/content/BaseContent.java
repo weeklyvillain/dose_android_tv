@@ -28,6 +28,8 @@ import org.json.JSONArray;
 
 import java.io.Serializable;
 
+
+// TODO: Fix so ids are int
 public abstract class BaseContent extends BaseObservable implements Serializable  {
     static final long serialVersionUID = 727566175075960653L;
 
