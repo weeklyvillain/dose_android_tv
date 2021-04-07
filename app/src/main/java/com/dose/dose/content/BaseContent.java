@@ -105,6 +105,10 @@ public abstract class BaseContent extends BaseObservable implements Serializable
         return watchTime;
     }
 
+    public void setWatchTime(int watchTime) {
+        this.watchTime = watchTime;
+    }
+
     public String getReadableDuration() {
         int hours = duration / 60 / 60;
         int minutes = (duration / 60) % 60;

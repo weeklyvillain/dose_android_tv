@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
 
 import org.json.JSONObject;
@@ -24,29 +25,32 @@ public class MainActivity extends FragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        /*SharedPreferences settings = getSharedPreferences("UserInfo", 0);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putString("Username",txtUname.getText().toString());
-        editor.putString("Password",txtPWD.getText().toString());
-        editor.commit();*/
 
         if(!loggedIn())
         {
             Intent intent = new Intent(this, LoginActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            finish();
-            startActivity(intent);
+            startActivityForResult(intent, 1);
+        } else {
+            setContentView(R.layout.activity_main);
         }
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        setContentView(R.layout.activity_main);
     }
 
     private Boolean loggedIn() {
         SharedPreferences settings = getSharedPreferences("UserInfo", 0);
         String JWT = settings.getString("MainServerJWT", "").toString();
+        String refreshToken = settings.getString("MainServerRefreshToken", "").toString();
         String mainServerURL = settings.getString("MainServerURL", "").toString();
         String contentServer = settings.getString("ContentServerURL", "").toString();
         String contentServerJWT = settings.getString("ContentServerJWT", "").toString();
-        if(JWT == ""  || mainServerURL == "" || contentServer == "" || contentServerJWT == ""){
+        if(JWT.isEmpty()  || mainServerURL.isEmpty() || contentServer.isEmpty() || contentServerJWT.isEmpty() || refreshToken.isEmpty()) {
             return Boolean.FALSE;
         }
 

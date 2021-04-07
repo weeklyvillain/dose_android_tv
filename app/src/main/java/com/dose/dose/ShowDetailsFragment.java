@@ -83,13 +83,7 @@ public class ShowDetailsFragment extends DetailsFragment {
         mSelectedShow =
                 (Show) getActivity().getIntent().getSerializableExtra(ShowDetailsActivity.SHOW);
 
-        SharedPreferences settings = this.getActivity().getSharedPreferences("UserInfo", 0);
-        String JWT = settings.getString("MainServerJWT", "").toString();
-        String mainServerURL = settings.getString("MainServerURL", "").toString();
-        String contentServerURL = settings.getString("ContentServerURL", "").toString();
-        String contentServerJWT = settings.getString("ContentServerJWT", "").toString();
-
-        showAPIClient  = new ShowAPIClient(mainServerURL, contentServerURL, JWT, contentServerJWT);
+        showAPIClient = ShowAPIClient.newInstance(getActivity());
 
         if (mSelectedShow != null) {
             mPresenterSelector = new ClassPresenterSelector();

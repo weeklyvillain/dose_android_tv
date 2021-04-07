@@ -26,4 +26,19 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_movie_details">MovieDetailsActivity</string>
+
+
+
+    <!-- SupportFragments -->
+    <string name="setup_content_server_title">Setup</string>
+    <string name="setup_content_server_breadcrumb">Step 1: Main server</string>
+    <string name="setup_content_server_description">Enter the IP/URL for the main server</string>
+
+    <string name="connect_title">Setup</string>
+    <string name="connect_breadcrumb">Step 2: Connect</string>
+    <string name="connect_description">Enter the code from /connect</string>
+
+    <string name="server_choice_title">Setup</string>
+    <string name="server_choice_breadcrumb">Step 3: Choose server</string>
+    <string name="server_choice_description">Choose your primary content server</string>
 </resources>

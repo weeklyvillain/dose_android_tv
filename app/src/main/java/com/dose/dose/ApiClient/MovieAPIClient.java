@@ -14,8 +14,8 @@ import java.util.Locale;
 
 public class MovieAPIClient extends DoseAPIClient {
 
-    public MovieAPIClient(String mainServerURL, String movieServerURL, String mainServerToken, String movieServerToken) {
-        super(mainServerURL, movieServerURL, mainServerToken, movieServerToken);
+    public MovieAPIClient(String mainServerURL, String movieServerURL, String mainServerToken, String mainServerRefreshToken, String movieServerToken, String mainServerValidTo, String contentServerValidTo, Context context) {
+        super(mainServerURL, movieServerURL, mainServerToken, mainServerRefreshToken, movieServerToken, mainServerValidTo, contentServerValidTo, context);
         Log.i("HAIHAI", movieServerURL);
     }
 
@@ -23,16 +23,20 @@ public class MovieAPIClient extends DoseAPIClient {
         SharedPreferences settings =
                 context.getSharedPreferences("UserInfo", 0);
         String JWT = settings.getString("MainServerJWT", "").toString();
+        String mainServerRefreshToken = settings.getString("MainServerRefreshToken", "");
+        String mainServerValidTo = settings.getString("MainServerValidTo", "").toString();
         String mainServerURL = settings.getString("MainServerURL", "").toString();
         String contentServerURL = settings.getString("ContentServerURL", "").toString();
         String contentServerJWT = settings.getString("ContentServerJWT", "").toString();
+        String contentServerValidTo = settings.getString("ContentServerValidTo", "").toString();
 
-        return new MovieAPIClient(mainServerURL, contentServerURL, JWT, contentServerJWT);
+        return new MovieAPIClient(mainServerURL, contentServerURL, JWT, mainServerRefreshToken, contentServerJWT, mainServerValidTo, contentServerValidTo, context);
     }
 
 
     @Override
     public String getPlaybackURL(String id, int startPos, String res) {
+        getNewTokensIfNeeded();
         return super.movieServerURL + String.format("/api/video/%s?type=movie&token=%s&start=%d&quality=%s", id, super.getMovieJWT(), startPos, res);
     }
 

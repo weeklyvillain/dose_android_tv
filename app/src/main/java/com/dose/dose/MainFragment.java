@@ -35,6 +35,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
@@ -52,6 +53,8 @@ import org.json.JSONException;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import jp.wasabeef.glide.transformations.BlurTransformation;
 
 public class MainFragment extends BrowseSupportFragment {
     private static final String TAG = "MainFragment";
@@ -71,6 +74,124 @@ public class MainFragment extends BrowseSupportFragment {
     private MovieAPIClient movieAPIClient;
     private ShowAPIClient showAPIClient;
 
+    // List row adapters
+    private static ArrayObjectAdapter ongoingMovies;
+    private static ArrayObjectAdapter ongoingShows;
+    private static ArrayObjectAdapter movieWatchlist;
+    private static ArrayObjectAdapter newlyAddedMovies;
+    private static ArrayObjectAdapter newlyAddedShows;
+    private static ArrayObjectAdapter newReleasesMovies;
+
+    // Private update functions
+    private static void updateOngoingMovie(Movie movie) {
+        for (int i = 0; i < ongoingMovies.size(); i++) {
+            Movie currentMovie = (Movie) ongoingMovies.get(i);
+            if (currentMovie.getId().equals(movie.getId())) {
+                ongoingMovies.replace(i, movie);
+                ongoingMovies.notifyArrayItemRangeChanged(i, 1);
+                break;
+            }
+        }
+    }
+
+    private static void updateWatchlistMovie(Movie movie) {
+        for (int i = 0; i < movieWatchlist.size(); i++) {
+            Movie currentMovie = (Movie) movieWatchlist.get(i);
+            if (currentMovie.getId().equals(movie.getId())) {
+                movieWatchlist.replace(i, movie);
+                movieWatchlist.notifyArrayItemRangeChanged(i, 1);
+                break;
+            }
+        }
+    }
+
+    private static void updateNewlyAddedMovie(Movie movie) {
+        for (int i = 0; i < newlyAddedMovies.size(); i++) {
+            Movie currentMovie = (Movie) newlyAddedMovies.get(i);
+            if (currentMovie.getId().equals(movie.getId())) {
+                newlyAddedMovies.replace(i, movie);
+                newlyAddedMovies.notifyArrayItemRangeChanged(i, 1);
+                break;
+            }
+        }
+    }
+
+    private static void updateNewlyAddedShow(Show show) {
+        for (int i = 0; i < newlyAddedShows.size(); i++) {
+            Show currentShow = (Show) newlyAddedShows.get(i);
+            if (currentShow.getId().equals(show.getId())) {
+                newlyAddedShows.replace(i, show);
+                newlyAddedShows.notifyArrayItemRangeChanged(i, 1);
+                break;
+            }
+        }
+    }
+
+    private static void updateNewReleaseMovie(Movie movie) {
+        for (int i = 0; i < newReleasesMovies.size(); i++) {
+            Movie currentMovie = (Movie) newReleasesMovies.get(i);
+            if (currentMovie.getId().equals(movie.getId())) {
+                newReleasesMovies.replace(i, movie);
+                newReleasesMovies.notifyArrayItemRangeChanged(i, 1);
+                break;
+            }
+        }
+    }
+
+
+
+    // Public update functions
+    public static void removeMovieFromOngoing(Movie movie) {
+        for (int i = 0; i < ongoingMovies.size(); i++) {
+            Movie currentMovie = (Movie) ongoingMovies.get(i);
+            if (currentMovie.getId().equals(movie.getId())) {
+                ongoingMovies.remove(currentMovie);
+                ongoingMovies.notifyArrayItemRangeChanged(i-1, 2);
+                break;
+            }
+        }
+    }
+
+    public static void removeEpisodeFromOngoing(Episode episode) {
+        for (int i = 0; i < ongoingShows.size(); i++) {
+            Episode currentEpisode = (Episode) ongoingShows.get(i);
+            if (currentEpisode.getId().equals(episode.getId())) {
+                ongoingShows.remove(currentEpisode);
+                ongoingShows.notifyArrayItemRangeChanged(i-1, 2);
+                break;
+            }
+        }
+    }
+
+    public static void removeMovieFromWatchlist(Movie movie) {
+        for (int i = 0; i < movieWatchlist.size(); i++) {
+            Movie currentMovie = (Movie) movieWatchlist.get(i);
+            if (currentMovie.getId().equals(movie.getId())) {
+                movieWatchlist.remove(currentMovie);
+                movieWatchlist.notifyArrayItemRangeChanged(i-1, 2);
+                break;
+            }
+        }
+    }
+
+    public static void updateAllMovieInfo(Movie movie) {
+        updateOngoingMovie(movie);
+        updateNewlyAddedMovie(movie);
+        updateNewReleaseMovie(movie);
+        updateWatchlistMovie(movie);
+    }
+
+    public static void updateOngoingEpisode(Episode episode) {
+        for (int i = 0; i < ongoingShows.size(); i++) {
+            Episode currentEpisode = (Episode) ongoingShows.get(i);
+            if (currentEpisode.getId().equals(episode.getId())) {
+                ongoingShows.replace(i, episode);
+                ongoingShows.notifyArrayItemRangeChanged(i, 1);
+                break;
+            }
+        }
+    }
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
@@ -78,16 +199,8 @@ public class MainFragment extends BrowseSupportFragment {
 
         prepareBackgroundManager();
 
-        SharedPreferences settings = this.getActivity().getSharedPreferences("UserInfo", 0);
-        String JWT = settings.getString("MainServerJWT", "").toString();
-        String mainServerURL = settings.getString("MainServerURL", "").toString();
-        String contentServerURL = settings.getString("ContentServerURL", "").toString();
-        String contentServerJWT = settings.getString("ContentServerJWT", "").toString();
-        Log.i(TAG, contentServerURL);
-
-        movieAPIClient = new MovieAPIClient(mainServerURL, contentServerURL, JWT, contentServerJWT);
-        showAPIClient  = new ShowAPIClient(mainServerURL, contentServerURL, JWT, contentServerJWT);
-
+        movieAPIClient = MovieAPIClient.newInstance(getActivity());
+        showAPIClient = ShowAPIClient.newInstance(getActivity());
 
         setupUIElements();
 
@@ -117,81 +230,63 @@ public class MainFragment extends BrowseSupportFragment {
                     int rows = 0;
                     ArrayObjectAdapter rowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
                     CardPresenter cardPresenter = new CardPresenter();
-                    ArrayObjectAdapter listRowAdapter;
                     HeaderItem header;
                     List <Movie> movieSpecificList;
                     List <BaseContent> contentList;
 
                     // ONGOING (MOVIES)
                     contentList = MovieList.setupOngoing(movieAPIClient);
-                    listRowAdapter = new ArrayObjectAdapter(cardPresenter);
+                    ongoingMovies = new ArrayObjectAdapter(cardPresenter);
                     for (int j = 0; j < Math.min(contentList.size(), 20); j++) {
-                        listRowAdapter.add(contentList.get(j));
+                        ongoingMovies.add(contentList.get(j));
                     }
                     header = new HeaderItem(rows++, "Ongoing");
-                    rowsAdapter.add(new ListRow(header, listRowAdapter));
+                    rowsAdapter.add(new ListRow(header, ongoingMovies));
 
                     // ONGOING (SHOWS)
                     contentList = MovieList.setupOngoing(showAPIClient);
-                    listRowAdapter = new ArrayObjectAdapter(cardPresenter);
+                    ongoingShows = new ArrayObjectAdapter(cardPresenter);
                     for (int j = 0; j < Math.min(contentList.size(), 20); j++) {
-                        listRowAdapter.add(contentList.get(j));
+                        ongoingShows.add(contentList.get(j));
                     }
-                    header = new HeaderItem(rows++, "Ongoing Shows");
-                    rowsAdapter.add(new ListRow(header, listRowAdapter));
+                    header = new HeaderItem(rows++, "Continue watching");
+                    rowsAdapter.add(new ListRow(header, ongoingShows));
 
                     // WATCHLIST (MOVIES)
                     movieSpecificList = MovieList.setupMovieWatchlist(movieAPIClient);
-                    listRowAdapter = new ArrayObjectAdapter(cardPresenter);
+                    movieWatchlist = new ArrayObjectAdapter(cardPresenter);
                     for (int j = 0; j < Math.min(movieSpecificList.size(), 20); j++) {
-                        listRowAdapter.add(movieSpecificList.get(j));
+                        movieWatchlist.add(movieSpecificList.get(j));
                     }
                     header = new HeaderItem(rows++, "Watchlist");
-                    rowsAdapter.add(new ListRow(header, listRowAdapter));
+                    rowsAdapter.add(new ListRow(header, movieWatchlist));
 
                     // NEWLY ADDED (MOVIES)
                     contentList = MovieList.setupNewlyAdded(movieAPIClient);
-                    listRowAdapter = new ArrayObjectAdapter(cardPresenter);
+                    newlyAddedMovies = new ArrayObjectAdapter(cardPresenter);
                     for (int j = 0; j < Math.min(contentList.size(), 20); j++) {
-                        listRowAdapter.add(contentList.get(j));
+                        newlyAddedMovies.add(contentList.get(j));
                     }
                     header = new HeaderItem(rows++, "New Movies");
-                    rowsAdapter.add(new ListRow(header, listRowAdapter));
+                    rowsAdapter.add(new ListRow(header, newlyAddedMovies));
 
                     // NEWLY ADDED (SHOWS)
                     contentList = MovieList.setupNewlyAdded(showAPIClient);
-                    listRowAdapter = new ArrayObjectAdapter(cardPresenter);
+                    newlyAddedShows = new ArrayObjectAdapter(cardPresenter);
                     for (int j = 0; j < Math.min(contentList.size(), 20); j++) {
-                        listRowAdapter.add(contentList.get(j));
+                        newlyAddedShows.add(contentList.get(j));
                     }
                     header = new HeaderItem(rows++, "New Shows");
-                    rowsAdapter.add(new ListRow(header, listRowAdapter));
-
+                    rowsAdapter.add(new ListRow(header, newlyAddedShows));
 
                     // NEW RELEASESE (MOVIES)
                     movieSpecificList = MovieList.setupNewlyReleasedMovies(movieAPIClient);
-                    listRowAdapter = new ArrayObjectAdapter(cardPresenter);
+                    newReleasesMovies = new ArrayObjectAdapter(cardPresenter);
                     for (int j = 0; j < Math.min(movieSpecificList.size(), 20); j++) {
-                        listRowAdapter.add(movieSpecificList.get(j));
+                        newReleasesMovies.add(movieSpecificList.get(j));
                     }
                     header = new HeaderItem(rows++, "New Releases");
-                    rowsAdapter.add(new ListRow(header, listRowAdapter));
-
-
-                    /*
-                    int i;
-                    for (i = 0; i < NUM_ROWS; i++) {
-                        if (i != 0) {
-                            Collections.shuffle(list);
-                        }
-                        ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(cardPresenter);
-                        for (int j = 0; j < NUM_COLS; j++) {
-                            listRowAdapter.add(list.get(j % 5));
-                        }
-                        HeaderItem header = new HeaderItem(i, MovieList.MOVIE_CATEGORY[i]);
-                        rowsAdapter.add(new ListRow(header, listRowAdapter));
-                    }
-                    */
+                    rowsAdapter.add(new ListRow(header, newReleasesMovies));
 
                     HeaderItem gridHeader = new HeaderItem(rows, "PREFERENCES");
 
@@ -262,7 +357,7 @@ public class MainFragment extends BrowseSupportFragment {
         Glide.with(getActivity())
                 .asBitmap()
                 .load(uri)
-                .centerCrop()
+                .transform(new BlurTransformation(), new CenterCrop())
                 .error(mDefaultBackground)
                 .into(new CustomTarget<Bitmap>(width, height) {
                     @Override
@@ -337,7 +432,6 @@ public class MainFragment extends BrowseSupportFragment {
                     SharedPreferences settings = getActivity().getSharedPreferences("UserInfo", Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = settings.edit();
                     editor.remove("MainServerJWT");
-                    editor.remove("MainServerURL");
                     editor.remove("ContentServerURL");
                     editor.remove("ContentServerJWT");
                     editor.apply();

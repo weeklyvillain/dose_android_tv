@@ -106,6 +106,7 @@ public class VideoActivity extends Activity {
 
             // Update current time on the server
             if (playedInSeconds % CURRENT_TIME_UPDATE_FREQ == 0 && player.isPlaying()) {
+                selectedContent.setWatchTime(playedInSeconds);
                 // Run on seperate thread
                 Thread thread = new Thread(new Runnable() {
                     @Override
@@ -184,6 +185,11 @@ public class VideoActivity extends Activity {
             controlsLayout.setVisibility(View.INVISIBLE);
             controlsVisible = false;
         } else {
+            if (selectedType == Type.EPISODE) {
+                MainFragment.updateOngoingEpisode((Episode)selectedContent);
+            } else {
+                MainFragment.updateAllMovieInfo((Movie)selectedContent);
+            }
             player.stop();
             super.onBackPressed();
         }
@@ -354,6 +360,7 @@ public class VideoActivity extends Activity {
 
     private void playNextEpisode() {
         player.stop();
+        MainFragment.removeEpisodeFromOngoing((Episode)selectedContent);
         selectedContent = nextEpisode;
 
         hideNextEpisodeBox();

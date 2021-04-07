@@ -13,23 +13,28 @@ import java.util.Locale;
 
 public class ShowAPIClient extends DoseAPIClient {
 
-    public ShowAPIClient(String mainServerURL, String movieServerURL, String mainServerToken, String movieServerToken) {
-        super(mainServerURL, movieServerURL, mainServerToken, movieServerToken);
+    public ShowAPIClient(String mainServerURL, String movieServerURL, String mainServerToken, String mainServerRefreshToken, String movieServerToken, String mainServerValidTo, String contentServerValidTo, Context context) {
+        super(mainServerURL, movieServerURL, mainServerToken, mainServerRefreshToken, movieServerToken, mainServerValidTo, contentServerValidTo, context);
     }
 
     public static ShowAPIClient newInstance(Context context) {
         SharedPreferences settings =
                 context.getSharedPreferences("UserInfo", 0);
         String JWT = settings.getString("MainServerJWT", "").toString();
+        String mainServerValidTo = settings.getString("MainServerValidTo", "").toString();
         String mainServerURL = settings.getString("MainServerURL", "").toString();
         String contentServerURL = settings.getString("ContentServerURL", "").toString();
         String contentServerJWT = settings.getString("ContentServerJWT", "").toString();
+        String contentServerValidTo = settings.getString("ContentServerValidTo", "").toString();
+        String mainServerRefreshToken = settings.getString("MainServerRefreshToken", "");
 
-        return new ShowAPIClient(mainServerURL, contentServerURL, JWT, contentServerJWT);
+
+        return new ShowAPIClient(mainServerURL, contentServerURL, JWT, mainServerRefreshToken, contentServerJWT, mainServerValidTo, contentServerValidTo, context);
     }
 
     @Override
     public String getPlaybackURL(String id, int startPos, String res) {
+        getNewTokensIfNeeded();
         Log.i("PlaybackURL: ", this.movieServerURL + String.format("/api/video/%s?type=serie&token=%s&start=%d&quality=%s", id, super.getMovieJWT(), startPos, res));
         return this.movieServerURL + String.format("/api/video/%s?type=serie&token=%s&start=%d&quality=%s", id, super.getMovieJWT(), startPos, res);
     }

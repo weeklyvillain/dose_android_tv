@@ -1,7 +1,12 @@
 package com.dose.dose.ApiClient;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.dose.dose.MainActivity;
 import com.google.gson.JsonObject;
 
 import org.json.JSONArray;
@@ -13,6 +18,10 @@ import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -31,10 +40,17 @@ public abstract class DoseAPIClient {
             - CustomPost() (har implementation)
             - CustomGet() (har implementation)
 */
+    private static Lock lock = new ReentrantLock();
+    // Keeps track of all instances of this class subclasses (to handle token changes)
+    private static List<DoseAPIClient> instances = new ArrayList();
     private String mainJWT;
     protected String movieJWT;
     protected String mainServerURL;
+    protected String mainServerValidTo;
+    protected String mainServerRefreshToken;
+    protected String contentServerValidTo;
     protected String movieServerURL;
+    private Context context;
 
     public abstract String getPlaybackURL(String id, int startPos, String res);
     public abstract JSONArray getNewContent();
@@ -43,75 +59,213 @@ public abstract class DoseAPIClient {
     public abstract JSONArray getWatchlist();
     public abstract void updateCurrentTime(String id, int time, int videoDuration);
 
-    protected DoseAPIClient(String mainServerURL, String movieServerURL, String mainJWT, String movieJWT) {
+    protected DoseAPIClient(String mainServerURL, String movieServerURL, String mainJWT, String mainServerRefreshToken, String movieJWT, String mainServerValidTo, String contentServerValidTo, Context context) {
         this.mainServerURL = mainServerURL;
         this.movieServerURL = movieServerURL;
         this.mainJWT = mainJWT;
+        this.mainServerRefreshToken = mainServerRefreshToken;
         this.movieJWT = movieJWT;
+        this.mainServerValidTo = mainServerValidTo;
+        this.contentServerValidTo = contentServerValidTo;
+        this.context = context;
+        DoseAPIClient.instances.add(this);
     }
 
-
-    public static JSONObject login(String username, String password, String mainServerUrl) {
-        JSONObject jsonParam = new JSONObject();
+    private JSONObject getNewMainToken() {
+        String url = String.format("%s/api/auth/refreshToken", this.mainServerURL);
+        Log.i("URL: ", url);
+        JSONObject body = new JSONObject();
         try {
-            jsonParam.put("username", username);
-            jsonParam.put("password", password);
+            body.put("token", this.mainJWT);
+            body.put("refreshToken", this.mainServerRefreshToken);
+            return getNewToken(url, body);
         } catch (Exception e) {
+            Log.i("TokenInformationError: ", "Couldn't put old token information to the parameters");
             e.printStackTrace();
         }
-        JSONObject response = customPost(mainServerUrl + "/api/auth/login", new JSONObject(), jsonParam);
-        Log.i("RESPONSE: ", response.toString());
-        return response;
+        return null;
     }
 
-    public static JSONObject getContentServers(String mainServerURL, String mainServerJWT) {
-        /*
-        JSONObject jsonParam = new JSONObject();
+    private JSONObject getNewContentToken() {
+        String url = String.format("%s/api/auth/validate", this.movieServerURL);
+        JSONObject body = new JSONObject();
         try {
-            jsonParam.put("username", username);
-            jsonParam.put("password", password);
+            body.put("token", this.mainJWT);
+            return getNewToken(url, body);
         } catch (Exception e) {
+            Log.i("TokenInformationError: ", "Couldn't put old token information to the parameters");
             e.printStackTrace();
         }
-        JSONObject response = customPost(mainServerUrl + "/api/auth/login", new JSONObject(), jsonParam);
-        return response;
-        */
-        JSONObject result = new JSONObject();
-        try {
-            result.put("server", "https://vnc.fgbox.appboxes.co/doseserver");
-            //result.put("server", "http://10.0.2.2:3001");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return result;
+        return null;
     }
 
-    public static String getContentServerJWT(String contentServer, String mainJWT) {
-        JSONObject jsonParam = new JSONObject();
+    private JSONObject getNewToken(String url, JSONObject body) {
         try {
-            jsonParam.put("token", mainJWT);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        JSONObject response = customPost(contentServer + "/api/auth/validate", new JSONObject(), jsonParam);
-        Log.i("CONTENTJWT", response.toString());
+            URL reqUrl = new URL(url);
+            HttpsURLConnection conn = (HttpsURLConnection) reqUrl.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+            conn.setRequestProperty("Accept","application/json");
+            conn.setDoOutput(true);
+            conn.setDoInput(true);
 
-        String result;
-        try {
-            if (response.getString("status").equals("success")) {
-                result = response.getString("token");
-            } else {
-                result = "";
+
+            Log.i("JSON", body.toString());
+            DataOutputStream os = new DataOutputStream(conn.getOutputStream());
+            os.writeBytes(body.toString());
+
+            os.flush();
+            os.close();
+
+            String responseMsg = "";
+            InputStream in = conn.getInputStream();
+
+            StringBuffer respDataBuf = new StringBuffer();
+            respDataBuf.setLength(0);
+            int b = -1;
+
+            while((b = in.read()) != -1) {
+                respDataBuf.append((char)b);
             }
-        } catch(Exception e) {
-            e.printStackTrace();
-            result = "";
-        }
+            responseMsg = respDataBuf.toString();
+            JSONObject jsonObject = new JSONObject(new JSONTokener(responseMsg));
+            Log.i("STATUS", String.valueOf(conn.getResponseCode()));
+            Log.i("MSG" , conn.getResponseMessage());
+            Log.i("RESPONSE: ", responseMsg);
+            conn.disconnect();
 
-        return result;
+            return jsonObject;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
-    public static JSONObject customPost(String url, JSONObject headers, JSONObject body) {
+    public void setNewMainToken(String token, String refreshToken, String validTo) {
+        this.mainJWT = token;
+        this.mainServerRefreshToken = refreshToken;
+        this.mainServerValidTo = validTo;
+    }
+
+    public void setNewContentToken(String token, String validTo) {
+        this.movieJWT = token;
+        this.contentServerValidTo = validTo;
+    }
+
+    public void getNewTokensIfNeeded() {
+        DoseAPIClient.lock.lock();
+        long currentTime = System.currentTimeMillis() / 1000;
+        Log.i("currentTime: ", String.valueOf(currentTime));
+        Log.i("tokenValidTo: ", String.valueOf(this.mainServerValidTo));
+        Log.i("contentTokenValidTo: ", String.valueOf(this.contentServerValidTo));
+        Log.i("TimeLeft: ", String.valueOf(currentTime - Long.parseLong(this.mainServerValidTo)));
+
+        boolean newMainTokenNeeded = (currentTime - Long.parseLong(this.mainServerValidTo)) >= -60;
+        Log.i("newMainTokenNeeded: ", String.valueOf(newMainTokenNeeded));
+        boolean newContentTokenNeeded = (currentTime - Long.parseLong(this.contentServerValidTo)) >= -60;
+        Log.i("newContentTokenNeeded: ", String.valueOf(newContentTokenNeeded));
+
+
+        boolean failedRefreshingMainToken = true;
+        boolean failedRefreshingContentToken = true;
+        if (newMainTokenNeeded) {
+            Log.i("TokenInformation: ", "Main token is expired");
+
+            // Get new token
+            JSONObject mainTokenInfo = this.getNewMainToken();
+            if (mainTokenInfo != null) {
+                try {
+                    String status = mainTokenInfo.getString("status");
+                    if (status.equals("success")) {
+                        String token = mainTokenInfo.getString("token");
+                        String refreshToken = mainTokenInfo.getString("refreshToken");
+                        String validTo = mainTokenInfo.getString("validTo");
+
+                        // Set the new token
+                        for (DoseAPIClient instance : DoseAPIClient.instances) {
+                            instance.setNewMainToken(token, refreshToken, validTo);
+                        }
+
+                        // Save the new token
+                        SharedPreferences settings = context.getSharedPreferences("UserInfo", 0);
+                        SharedPreferences.Editor editor = settings.edit();
+                        editor.putString("MainServerJWT", token);
+                        editor.putString("MainServerRefreshToken", refreshToken);
+                        editor.putString("MainServerValidTo", validTo);
+                        editor.commit();
+                        failedRefreshingMainToken = false;
+
+                        Log.i("TokenInformation: ", "Got new main server token");
+                    }
+                } catch (Exception e) {
+                    Log.i("TokenInformationError: ", "Couldn't get data from new token");
+                    e.printStackTrace();
+                }
+            } else {
+                Log.i("TokenInformationError: ", "Couldn't do request to main server..");
+            }
+        } else {
+            failedRefreshingMainToken = false;
+        }
+
+        if (newContentTokenNeeded) {
+            Log.i("TokenInformation: ", "Content token is expired");
+
+            // Get new token
+            JSONObject contentTokenInfo = this.getNewContentToken();
+            if (contentTokenInfo != null) {
+                try {
+                    String status = contentTokenInfo.getString("status");
+                    if (status.equals("success")) {
+                        String token = contentTokenInfo.getString("token");
+                        String validTo = contentTokenInfo.getString("validTo");
+
+                        // Set the new token
+                        for (DoseAPIClient instance : DoseAPIClient.instances) {
+                            instance.setNewContentToken(token, validTo);
+                        }
+
+                        // Save the new token
+                        SharedPreferences settings = context.getSharedPreferences("UserInfo", 0);
+                        SharedPreferences.Editor editor = settings.edit();
+                        editor.putString("ContentServerJWT", token);
+                        editor.putString("ContentServerValidTo", validTo);
+                        editor.commit();
+                        failedRefreshingContentToken = false;
+                        Log.i("TokenInformation: ", "Got new content server token");
+                    }
+                } catch (Exception e) {
+                    Log.i("TokenInformationError: ", "Couldn't get data from new token");
+                    e.printStackTrace();
+                }
+            } else {
+                Log.i("TokenInformationError: ", "Couldn't do request to content server..");
+            }
+        } else {
+            failedRefreshingContentToken = false;
+        }
+
+        if (failedRefreshingContentToken || failedRefreshingMainToken) {
+            SharedPreferences settings = context.getSharedPreferences("UserInfo", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.remove("MainServerJWT");
+            editor.remove("ContentServerJWT");
+            editor.remove("ContentServerValidTo");
+            editor.remove("ContentServerURL");
+            editor.remove("MainServerRefreshToken");
+            editor.remove("MainServerValidTo");
+            editor.apply();
+
+            Intent intent = new Intent(context, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            context.startActivity(intent);
+        }
+        DoseAPIClient.lock.unlock();
+    }
+
+
+    protected JSONObject customPost(String url, JSONObject headers, JSONObject body) {
+        getNewTokensIfNeeded();
         try {
             Log.i("URL: ", url);
         URL reqUrl = new URL(url);
@@ -154,13 +308,8 @@ public abstract class DoseAPIClient {
         return new JSONObject();
     }
 
-
-    public JSONObject customPost(String url, JSONObject body) {
-
-        return new JSONObject();
-    }
-
-    public JSONObject customGet(String url, JSONObject headers) {
+    protected JSONObject customGet(String url, JSONObject headers) {
+        getNewTokensIfNeeded();
         try {
             URL reqUrl = new URL(url);
             HttpsURLConnection conn = (HttpsURLConnection) reqUrl.openConnection();
@@ -192,6 +341,19 @@ public abstract class DoseAPIClient {
         return new JSONObject();
     }
 
+    public static boolean ping(String url) {
+        url += "/api/ping";
+        try {
+            URL reqUrl = new URL(url);
+            HttpsURLConnection conn = (HttpsURLConnection) reqUrl.openConnection();
+            conn.setRequestMethod("GET");
+            conn.connect();
+            return conn.getResponseCode() == 200;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
     public String getMovieJWT() {
         return movieJWT;
