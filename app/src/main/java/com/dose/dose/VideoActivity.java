@@ -170,7 +170,9 @@ public class VideoActivity extends Activity {
         }
 
         setDuration();
-        setNextEpisode();
+        if (selectedType == Type.EPISODE) {
+            setNextEpisode();
+        }
         setupSeekbar();
         setupVideo();
         timeAtSeek = continueWatching ? selectedContent.getWatchTime() : 0;
