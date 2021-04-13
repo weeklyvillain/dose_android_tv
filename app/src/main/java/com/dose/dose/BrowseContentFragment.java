@@ -19,6 +19,8 @@ import androidx.leanback.widget.Row;
 import androidx.leanback.widget.RowPresenter;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,7 +36,9 @@ import com.dose.dose.viewModels.SelectedViewModel;
 
 import org.json.JSONException;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -43,13 +47,19 @@ import java.util.Objects;
  * create an instance of this fragment.
  */
 public class BrowseContentFragment extends RowsSupportFragment {
-    // List row adapters
+    private CardPresenter cardPresenter;
+    private ListRowPresenter listRowPresenter;
+    private ArrayObjectAdapter rowsAdapter;
+    private int rows = 0;
+
+    // List row adapters that uses data
     private static ArrayObjectAdapter ongoingMovies;
     private static ArrayObjectAdapter ongoingShows;
     private static ArrayObjectAdapter movieWatchlist;
     private static ArrayObjectAdapter newlyAddedMovies;
     private static ArrayObjectAdapter newlyAddedShows;
     private static ArrayObjectAdapter newReleasesMovies;
+    private static List<Pair<HeaderItem, ArrayObjectAdapter>> movieGenres;
     private MovieAPIClient movieAPIClient;
     private ShowAPIClient showAPIClient;
 
@@ -64,6 +74,7 @@ public class BrowseContentFragment extends RowsSupportFragment {
         selectedViewModel = new ViewModelProvider(requireActivity()).get(SelectedViewModel.class);
 
         setupRows();
+        setupGenres();
         try {
             loadRows();
         } catch (JSONException e) {
@@ -72,11 +83,46 @@ public class BrowseContentFragment extends RowsSupportFragment {
 
     }
 
+    private void setupGenres() {
+        movieGenres = new ArrayList<>();
+        new Thread(() -> {
+            List<String> genres = movieAPIClient.getGenres();
+            int rowsAdapterInitialLength = rowsAdapter.size();
+            for (String genre : genres) {
+                // Make first letter uppercase
+                genre = genre.substring(0, 1).toUpperCase() + genre.substring(1);
+                // Create an adapter for this row
+                ArrayObjectAdapter adapter = new ArrayObjectAdapter(cardPresenter);
+                // Greate a new header and add the new adapter to the view
+                HeaderItem header = new HeaderItem(rows++, genre);
+
+                // Save the adapter as a pair with the genre name
+                movieGenres.add(new Pair<>(header, adapter));
+                rowsAdapter.add(new ListRow(header, adapter));
+            }
+            // Notify rowsAdapter that new rows has been added
+            rowsAdapter.notifyArrayItemRangeChanged(rowsAdapterInitialLength, rowsAdapter.size() - rowsAdapterInitialLength);
+            loadGenres();
+        }).start();
+    }
+
+    private void loadGenres() {
+        for (Pair<HeaderItem, ArrayObjectAdapter> genre : movieGenres) {
+            new Thread(() -> {
+                try {
+                    List<BaseContent> contentList = MovieList.setupByGenre(movieAPIClient, genre.first.getName().toLowerCase());
+                    requireActivity().runOnUiThread(() -> setAdapterContent(contentList, genre.second));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }).start();
+        }
+    }
+
     private void setupRows() {
-        int rows = 0;
-        CardPresenter cardPresenter = new CardPresenter();
-        ListRowPresenter listRowPresenter = new ListRowPresenter(FocusHighlight.ZOOM_FACTOR_LARGE, true);
-        ArrayObjectAdapter rowsAdapter = new ArrayObjectAdapter(listRowPresenter);
+        cardPresenter = new CardPresenter();
+        listRowPresenter = new ListRowPresenter(FocusHighlight.ZOOM_FACTOR_LARGE, true);
+        rowsAdapter = new ArrayObjectAdapter(listRowPresenter);
         HeaderItem header;
 
         ongoingMovies = new ArrayObjectAdapter(cardPresenter);
@@ -123,12 +169,7 @@ public class BrowseContentFragment extends RowsSupportFragment {
             final List<BaseContent> contentList;
             try {
                 contentList = MovieList.setupOngoing(movieAPIClient);
-                requireActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        setAdapterContent(contentList, ongoingMovies);
-                    }
-                });
+                requireActivity().runOnUiThread(() -> setAdapterContent(contentList, ongoingMovies));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -139,12 +180,7 @@ public class BrowseContentFragment extends RowsSupportFragment {
             final List<BaseContent> contentList;
             try {
                 contentList = MovieList.setupOngoing(showAPIClient);
-                requireActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        setAdapterContent(contentList, ongoingShows);
-                    }
-                });
+                requireActivity().runOnUiThread(() -> setAdapterContent(contentList, ongoingShows));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -155,12 +191,7 @@ public class BrowseContentFragment extends RowsSupportFragment {
             final List<BaseContent> contentList;
             try {
                 contentList = MovieList.setupMovieWatchlist(movieAPIClient);
-                requireActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        setAdapterContent(contentList, movieWatchlist);
-                    }
-                });
+                requireActivity().runOnUiThread(() -> setAdapterContent(contentList, movieWatchlist));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -171,12 +202,7 @@ public class BrowseContentFragment extends RowsSupportFragment {
             final List<BaseContent> contentList;
             try {
                 contentList = MovieList.setupNewlyAdded(movieAPIClient);
-                requireActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        setAdapterContent(contentList, newlyAddedMovies);
-                    }
-                });
+                requireActivity().runOnUiThread(() -> setAdapterContent(contentList, newlyAddedMovies));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -187,12 +213,7 @@ public class BrowseContentFragment extends RowsSupportFragment {
             final List<BaseContent> contentList;
             try {
                 contentList = MovieList.setupNewlyAdded(showAPIClient);
-                requireActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        setAdapterContent(contentList, newlyAddedShows);
-                    }
-                });
+                requireActivity().runOnUiThread(() -> setAdapterContent(contentList, newlyAddedShows));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -203,12 +224,7 @@ public class BrowseContentFragment extends RowsSupportFragment {
             final List<BaseContent> contentList;
             try {
                 contentList = MovieList.setupNewlyReleasedMovies(movieAPIClient);
-                requireActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        setAdapterContent(contentList, newReleasesMovies);
-                    }
-                });
+                requireActivity().runOnUiThread(() -> setAdapterContent(contentList, newReleasesMovies));
             } catch (Exception e) {
                 e.printStackTrace();
             }

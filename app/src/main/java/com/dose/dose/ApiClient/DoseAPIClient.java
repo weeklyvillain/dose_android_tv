@@ -18,6 +18,7 @@ import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
@@ -58,6 +59,7 @@ public abstract class DoseAPIClient {
     public abstract int getDuration(String id) throws Exception;
     public abstract JSONArray getWatchlist();
     public abstract void updateCurrentTime(String id, int time, int videoDuration);
+    public abstract JSONArray getByGenre(String genre) throws JSONException;
 
     protected DoseAPIClient(String mainServerURL, String movieServerURL, String mainJWT, String mainServerRefreshToken, String movieJWT, String mainServerValidTo, String contentServerValidTo, Context context) {
         this.mainServerURL = mainServerURL;
@@ -309,6 +311,11 @@ public abstract class DoseAPIClient {
     }
 
     protected JSONObject customGet(String url, JSONObject headers) {
+        try {
+            url = URLDecoder.decode(url, "UTF-8");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         getNewTokensIfNeeded();
         try {
             URL reqUrl = new URL(url);
@@ -339,6 +346,22 @@ public abstract class DoseAPIClient {
             e.printStackTrace();
         }
         return new JSONObject();
+    }
+
+    public List<String> getGenres() {
+        String url = String.format("%s/api/genre/list?token=%s", this.movieServerURL, this.getMovieJWT());
+        List<String> genres = new ArrayList<>();
+        try {
+            JSONArray result = customGet(url, new JSONObject()).getJSONArray("genres");
+            for (int i = 0; i < result.length(); i++) {
+                genres.add(result.getJSONObject(i).getString("name"));
+            }
+
+            Log.i("genres: ", genres.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return genres;
     }
 
     public static boolean ping(String url) {

@@ -38,6 +38,29 @@ public final class MovieList {
         return list;
     }
 
+    public static List<BaseContent> setupByGenre(DoseAPIClient apiClient, String genre) throws JSONException {
+        Log.i("HELLOO", "TEST");
+        List<BaseContent> list = new ArrayList<>();
+        JSONArray movies = apiClient.getByGenre(genre);
+        Log.i(String.format("MOVIEGENRE %s", genre), movies.toString());
+
+        for (int i=0;i<movies.length();i++) {
+            BaseContent obj =
+                    buildMovieInfo(
+                        movies.getJSONObject(i).getString("id"),
+                        movies.getJSONObject(i).getString("title"),
+                        movies.getJSONObject(i).getString("overview"),
+                        movies.getJSONObject(i).getString("release_date"),
+                        movies.getJSONObject(i).getJSONArray("images"),
+                        movies.getJSONObject(i).getJSONArray("genres"),
+                        apiClient.getMovieJWT(),
+                        0); // TODO: We should get the watchtime for these movies aswell
+
+            list.add(obj);
+        }
+        return list;
+    }
+
 
     public static List<BaseContent> setupNewlyAdded(DoseAPIClient apiClient) throws JSONException {
         List<BaseContent> list = new ArrayList<>();

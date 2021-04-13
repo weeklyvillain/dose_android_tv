@@ -7,6 +7,7 @@ import android.util.Log;
 import com.dose.dose.content.Episode;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Locale;
@@ -122,6 +123,11 @@ public class ShowAPIClient extends DoseAPIClient {
         String url = String.format(Locale.US, "%s/api/video/%s/currenttime/set?type=serie&time=%d&videoDuration=%s&token=%s", super.movieServerURL, id, time, videoDuration, super.getMovieJWT());
         Log.i("UPDATECURRENTTIME: ", url);
         super.customGet(url, new JSONObject());
+    }
+
+    @Override
+    public JSONArray getByGenre(String genre) throws JSONException {
+        return null;
     }
 
     public Episode getNextEpisode(Episode episode) {
