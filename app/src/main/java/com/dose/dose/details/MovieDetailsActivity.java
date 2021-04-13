@@ -18,7 +18,6 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.dose.dose.DetailsActivity;
 import com.dose.dose.R;
 import com.dose.dose.content.Movie;
 import com.dose.dose.details.ui.main.MovieDetailsFragment;

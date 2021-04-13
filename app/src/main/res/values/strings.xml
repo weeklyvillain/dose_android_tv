@@ -28,7 +28,6 @@
     <string name="title_activity_movie_details">MovieDetailsActivity</string>
 
 
-
     <!-- SupportFragments -->
     <string name="setup_content_server_title">Setup</string>
     <string name="setup_content_server_breadcrumb">Step 1: Main server</string>
@@ -41,4 +40,5 @@
     <string name="server_choice_title">Setup</string>
     <string name="server_choice_breadcrumb">Step 3: Choose server</string>
     <string name="server_choice_description">Choose your primary content server</string>
+    <string name="title_activity_browse">BrowseActivity</string>
 </resources>

@@ -21,7 +21,6 @@ public class MovieCardView extends BaseCardView {
     private TextView seasonAndEpisode;
     private ImageView mainImageView;
 
-
     public MovieCardView(Context context) {
         super(context);
         buildCardView();

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+        <variable
+            name="selected"
+            type="com.dose.dose.content.BaseContent" />
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".BrowseHeaderFragment">
+
+        <ImageView
+            android:id="@+id/header_backdrop"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/trending_gradient_shape_2" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/trending_gradient_shape" />
+
+
+        <TextView
+            android:id="@+id/header_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="25dp"
+            android:text="@{selected.getTitle()}"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/header_backdrop" />
+
+        <TextView
+            android:id="@+id/header_description"
+            android:layout_width="400dp"
+            android:layout_height="193dp"
+            android:layout_marginStart="5dp"
+            android:text="@{selected.getDescription()}"
+            app:layout_constraintStart_toStartOf="@+id/header_title"
+            app:layout_constraintTop_toBottomOf="@+id/header_title" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

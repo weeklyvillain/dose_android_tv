@@ -188,9 +188,9 @@ public class VideoActivity extends Activity {
             controlsVisible = false;
         } else {
             if (selectedType == Type.EPISODE) {
-                MainFragment.updateOngoingEpisode((Episode)selectedContent);
+                //MainFragment.updateOngoingEpisode((Episode)selectedContent);
             } else {
-                MainFragment.updateAllMovieInfo((Movie)selectedContent);
+                //MainFragment.updateAllMovieInfo((Movie)selectedContent);
             }
             player.stop();
             super.onBackPressed();
@@ -362,7 +362,7 @@ public class VideoActivity extends Activity {
 
     private void playNextEpisode() {
         player.stop();
-        MainFragment.removeEpisodeFromOngoing((Episode)selectedContent);
+        //MainFragment.removeEpisodeFromOngoing((Episode)selectedContent);
         selectedContent = nextEpisode;
 
         hideNextEpisodeBox();

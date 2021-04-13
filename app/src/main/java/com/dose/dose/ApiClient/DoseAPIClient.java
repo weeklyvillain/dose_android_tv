@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.dose.dose.MainActivity;
+import com.dose.dose.BrowseActivity;
 import com.google.gson.JsonObject;
 
 import org.json.JSONArray;
@@ -256,7 +256,7 @@ public abstract class DoseAPIClient {
             editor.remove("MainServerValidTo");
             editor.apply();
 
-            Intent intent = new Intent(context, MainActivity.class);
+            Intent intent = new Intent(context, BrowseActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             context.startActivity(intent);
         }

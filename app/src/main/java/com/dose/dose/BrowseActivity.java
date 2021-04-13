@@ -3,27 +3,32 @@ package com.dose.dose;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.leanback.app.BackgroundManager;
+import androidx.lifecycle.ViewModelProvider;
 
-import org.json.JSONObject;
-import org.json.JSONTokener;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
+import com.dose.dose.viewModels.SelectedViewModel;
 
-import java.io.DataOutputStream;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import jp.wasabeef.glide.transformations.BlurTransformation;
 
-/*
- * Main Activity class that loads {@link MainFragment}.
- */
-public class MainActivity extends FragmentActivity {
+public class BrowseActivity extends FragmentActivity {
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         if(!loggedIn())
@@ -32,15 +37,8 @@ public class MainActivity extends FragmentActivity {
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivityForResult(intent, 1);
         } else {
-            setContentView(R.layout.activity_main);
+            setContentView(R.layout.activity_browse);
         }
-
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        setContentView(R.layout.activity_main);
     }
 
     private Boolean loggedIn() {

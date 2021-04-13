@@ -27,7 +27,6 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.dose.dose.ApiClient.MovieAPIClient;
-import com.dose.dose.DetailsActivity;
 import com.dose.dose.R;
 import com.dose.dose.VideoActivity;
 import com.dose.dose.content.Movie;
