@@ -28,7 +28,7 @@ import jp.wasabeef.glide.transformations.BlurTransformation;
 public class BrowseActivity extends FragmentActivity {
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         if(!loggedIn())
@@ -53,5 +53,11 @@ public class BrowseActivity extends FragmentActivity {
         }
 
         return Boolean.TRUE;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        setContentView(R.layout.activity_browse);
     }
 }
