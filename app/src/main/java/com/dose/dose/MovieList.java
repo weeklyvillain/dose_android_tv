@@ -74,8 +74,8 @@ public final class MovieList {
         return list;
     }
 
-    public static List<Movie> setupNewlyReleasedMovies(MovieAPIClient movieAPIClient) throws JSONException {
-        List<Movie> list = new ArrayList<>();
+    public static List<BaseContent> setupNewlyReleasedMovies(MovieAPIClient movieAPIClient) throws JSONException {
+        List<BaseContent> list = new ArrayList<>();
         JSONArray movies = movieAPIClient.getNewReleases();
 
         if (movies != null) {
@@ -93,7 +93,7 @@ public final class MovieList {
                 list.add(obj);
             }
         }
-        return  list;
+        return list;
     }
 
     public static List<BaseContent> setupOngoing(DoseAPIClient apiClient) throws JSONException {
@@ -146,8 +146,8 @@ public final class MovieList {
         return  list;
     }
 
-    public static List<Movie> setupMovieWatchlist(MovieAPIClient movieAPIClient) throws JSONException {
-        List<Movie> list = new ArrayList<>();
+    public static List<BaseContent> setupMovieWatchlist(MovieAPIClient movieAPIClient) throws JSONException {
+        List<BaseContent> list = new ArrayList<>();
         JSONArray movies = movieAPIClient.getWatchlist();
 
         if (movies != null) {
@@ -165,7 +165,7 @@ public final class MovieList {
                 list.add(obj);
             }
         }
-        return  list;
+        return list;
     }
 
     public static List<Season> setupSeasons(ShowAPIClient showAPIClient, Show show) throws JSONException {

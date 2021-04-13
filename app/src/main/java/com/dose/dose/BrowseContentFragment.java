@@ -34,7 +34,9 @@ import com.dose.dose.viewModels.SelectedViewModel;
 
 import org.json.JSONException;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -61,6 +63,7 @@ public class BrowseContentFragment extends RowsSupportFragment {
         showAPIClient = ShowAPIClient.newInstance(getActivity());
         selectedViewModel = new ViewModelProvider(requireActivity()).get(SelectedViewModel.class);
 
+        setupRows();
         try {
             loadRows();
         } catch (JSONException e) {
@@ -69,90 +72,147 @@ public class BrowseContentFragment extends RowsSupportFragment {
 
     }
 
+    private void setupRows() {
+        int rows = 0;
+        CardPresenter cardPresenter = new CardPresenter();
+        ListRowPresenter listRowPresenter = new ListRowPresenter(FocusHighlight.ZOOM_FACTOR_LARGE, true);
+        ArrayObjectAdapter rowsAdapter = new ArrayObjectAdapter(listRowPresenter);
+        HeaderItem header;
+
+        ongoingMovies = new ArrayObjectAdapter(cardPresenter);
+        header = new HeaderItem(rows++, "Ongoing");
+        rowsAdapter.add(new ListRow(header, ongoingMovies));
+
+        ongoingShows = new ArrayObjectAdapter(cardPresenter);
+        header = new HeaderItem(rows++, "Continue watching");
+        rowsAdapter.add(new ListRow(header, ongoingShows));
+
+        movieWatchlist = new ArrayObjectAdapter(cardPresenter);
+        header = new HeaderItem(rows++, "Watchlist");
+        rowsAdapter.add(new ListRow(header, movieWatchlist));
+
+        newlyAddedMovies = new ArrayObjectAdapter(cardPresenter);
+        header = new HeaderItem(rows++, "New Movies");
+        rowsAdapter.add(new ListRow(header, newlyAddedMovies));
+
+        newlyAddedShows = new ArrayObjectAdapter(cardPresenter);
+        header = new HeaderItem(rows++, "New Shows");
+        rowsAdapter.add(new ListRow(header, newlyAddedShows));
+
+        newReleasesMovies = new ArrayObjectAdapter(cardPresenter);
+        header = new HeaderItem(rows++, "New Releases");
+        rowsAdapter.add(new ListRow(header, newReleasesMovies));
+
+        setAdapter(rowsAdapter);
+        setOnItemViewSelectedListener(getItemSelectedListener());
+        setOnItemViewClickedListener(getItemClickedListener());
+    }
+
+    private void setAdapterContent(List<BaseContent> content, ArrayObjectAdapter adapter) {
+        for (int j = 0; j < Math.min(content.size(), 20); j++) {
+            adapter.add(content.get(j));
+        }
+        synchronized (adapter) {
+            adapter.notifyAll();
+        }
+    }
+
     private void loadRows() throws JSONException {
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    int rows = 0;
-                    ListRowPresenter listRowPresenter = new ListRowPresenter(FocusHighlight.ZOOM_FACTOR_LARGE, true);
-                    ArrayObjectAdapter rowsAdapter = new ArrayObjectAdapter(listRowPresenter);
-
-                    CardPresenter cardPresenter = new CardPresenter();
-                    HeaderItem header;
-                    List<Movie> movieSpecificList;
-                    List <BaseContent> contentList;
-
-                    // ONGOING (MOVIES)
-                    contentList = MovieList.setupOngoing(movieAPIClient);
-                    ongoingMovies = new ArrayObjectAdapter(cardPresenter);
-                    for (int j = 0; j < Math.min(contentList.size(), 20); j++) {
-                        ongoingMovies.add(contentList.get(j));
+        // Load ongoing movies
+        new Thread(() -> {
+            final List<BaseContent> contentList;
+            try {
+                contentList = MovieList.setupOngoing(movieAPIClient);
+                requireActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        setAdapterContent(contentList, ongoingMovies);
                     }
-                    header = new HeaderItem(rows++, "Ongoing");
-                    rowsAdapter.add(new ListRow(header, ongoingMovies));
-
-                    // ONGOING (SHOWS)
-                    contentList = MovieList.setupOngoing(showAPIClient);
-                    ongoingShows = new ArrayObjectAdapter(cardPresenter);
-                    for (int j = 0; j < Math.min(contentList.size(), 20); j++) {
-                        ongoingShows.add(contentList.get(j));
-                    }
-                    header = new HeaderItem(rows++, "Continue watching");
-                    rowsAdapter.add(new ListRow(header, ongoingShows));
-
-                    // WATCHLIST (MOVIES)
-                    movieSpecificList = MovieList.setupMovieWatchlist(movieAPIClient);
-                    movieWatchlist = new ArrayObjectAdapter(cardPresenter);
-                    for (int j = 0; j < Math.min(movieSpecificList.size(), 20); j++) {
-                        movieWatchlist.add(movieSpecificList.get(j));
-                    }
-                    header = new HeaderItem(rows++, "Watchlist");
-                    rowsAdapter.add(new ListRow(header, movieWatchlist));
-
-                    // NEWLY ADDED (MOVIES)
-                    contentList = MovieList.setupNewlyAdded(movieAPIClient);
-                    newlyAddedMovies = new ArrayObjectAdapter(cardPresenter);
-                    for (int j = 0; j < Math.min(contentList.size(), 20); j++) {
-                        newlyAddedMovies.add(contentList.get(j));
-                    }
-                    header = new HeaderItem(rows++, "New Movies");
-                    rowsAdapter.add(new ListRow(header, newlyAddedMovies));
-
-                    // NEWLY ADDED (SHOWS)
-                    contentList = MovieList.setupNewlyAdded(showAPIClient);
-                    newlyAddedShows = new ArrayObjectAdapter(cardPresenter);
-                    for (int j = 0; j < Math.min(contentList.size(), 20); j++) {
-                        newlyAddedShows.add(contentList.get(j));
-                    }
-                    header = new HeaderItem(rows++, "New Shows");
-                    rowsAdapter.add(new ListRow(header, newlyAddedShows));
-
-                    // NEW RELEASESE (MOVIES)
-                    movieSpecificList = MovieList.setupNewlyReleasedMovies(movieAPIClient);
-                    newReleasesMovies = new ArrayObjectAdapter(cardPresenter);
-                    for (int j = 0; j < Math.min(movieSpecificList.size(), 20); j++) {
-                        newReleasesMovies.add(movieSpecificList.get(j));
-                    }
-                    header = new HeaderItem(rows++, "New Releases");
-                    rowsAdapter.add(new ListRow(header, newReleasesMovies));
-
-
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            setAdapter(rowsAdapter);
-                            setOnItemViewSelectedListener(getItemSelectedListener());
-                            setOnItemViewClickedListener(getItemClickedListener());
-                        }
-                    });
-                } catch(Exception e) {
-                    e.printStackTrace();
-                }
-
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        });
-        thread.start();
+        }).start();
+
+        // Load ongoing shows
+        new Thread(() -> {
+            final List<BaseContent> contentList;
+            try {
+                contentList = MovieList.setupOngoing(showAPIClient);
+                requireActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        setAdapterContent(contentList, ongoingShows);
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+
+        // Load movie watchlist
+        new Thread(() -> {
+            final List<BaseContent> contentList;
+            try {
+                contentList = MovieList.setupMovieWatchlist(movieAPIClient);
+                requireActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        setAdapterContent(contentList, movieWatchlist);
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+
+        // Load newly added movies
+        new Thread(() -> {
+            final List<BaseContent> contentList;
+            try {
+                contentList = MovieList.setupNewlyAdded(movieAPIClient);
+                requireActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        setAdapterContent(contentList, newlyAddedMovies);
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+
+        // Load newly added shows
+        new Thread(() -> {
+            final List<BaseContent> contentList;
+            try {
+                contentList = MovieList.setupNewlyAdded(showAPIClient);
+                requireActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        setAdapterContent(contentList, newlyAddedShows);
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+
+        // Load new releases
+        new Thread(() -> {
+            final List<BaseContent> contentList;
+            try {
+                contentList = MovieList.setupNewlyReleasedMovies(movieAPIClient);
+                requireActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        setAdapterContent(contentList, newReleasesMovies);
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
 
     }
 

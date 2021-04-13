@@ -79,7 +79,6 @@ public class BrowseHeaderFragment extends Fragment {
                     .into(backdrop);
         });
 
-
         return view;
     }
 
