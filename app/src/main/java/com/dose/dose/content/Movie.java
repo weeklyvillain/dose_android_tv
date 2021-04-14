@@ -28,6 +28,7 @@ public class Movie extends BaseContent implements Serializable {
                 "id=" + id +
                 ", title='" + title + '\'' +
                 ", overview='" + overview + '\'' +
+                ", genres='" + genres.toString() + '\'' +
                 ", backgroundImageUrl='" + getCardImageUrl(true) + '\'' +
                 '}';
     }

@@ -1,6 +1,7 @@
 package com.dose.dose;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -8,6 +9,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.graphics.ColorUtils;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
@@ -18,6 +20,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -31,8 +34,10 @@ import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.dose.dose.content.BaseContent;
+import com.dose.dose.content.Episode;
 import com.dose.dose.content.Movie;
 import com.dose.dose.databinding.FragmentBrowseHeaderBinding;
+import com.dose.dose.search.SearchActivity;
 import com.dose.dose.viewModels.SelectedViewModel;
 
 import jp.wasabeef.glide.transformations.BlurTransformation;
@@ -44,8 +49,7 @@ import jp.wasabeef.glide.transformations.BlurTransformation;
 public class BrowseHeaderFragment extends Fragment {
     private BaseContent selected;
     private ImageView backdrop;
-    private TextView title;
-    private TextView description;
+    private ImageButton searchBtn;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -63,15 +67,26 @@ public class BrowseHeaderFragment extends Fragment {
         FragmentBrowseHeaderBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_browse_header, container, false);
         View view = binding.getRoot();
         binding.setSelected(selected);
-
         backdrop = view.findViewById(R.id.header_backdrop);
-        title = view.findViewById(R.id.header_title);
-        description = view.findViewById(R.id.header_description);
+
+        searchBtn = view.findViewById(R.id.search_button);
+        searchBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), SearchActivity.class);
+
+            Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    getActivity(),
+                    searchBtn,
+                    SearchActivity.SHARED_ELEMENT_NAME)
+                    .toBundle();
+            getActivity().startActivity(intent, bundle);
+        });
 
         SelectedViewModel model = new ViewModelProvider(requireActivity()).get(SelectedViewModel.class);
         model.getSelected().observe(getViewLifecycleOwner(), item -> {
             selected.setTitle(item.getTitle());
             selected.setDescription(item.getDescription());
+            selected.setGenres(item.getGenresList());
+            selected.setReleaseDate(String.format(" | %s", item.getReleaseDate()));
 
             Glide.with(getContext())
                     .load(item.getCardImageUrl(true))

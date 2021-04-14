@@ -278,6 +278,7 @@ public class BrowseContentFragment extends RowsSupportFragment {
             @Override
             public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item, RowPresenter.ViewHolder rowViewHolder, Row row) {
                 if (item != null) {
+                    Log.i("Selected: ", ((BaseContent)item).getGenres());
                     selectedViewModel.setSelected((BaseContent) item);
                 }
             }

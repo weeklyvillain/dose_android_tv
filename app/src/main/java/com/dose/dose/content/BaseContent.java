@@ -68,6 +68,10 @@ public abstract class BaseContent extends BaseObservable implements Serializable
 
     }
 
+    public void setGenres(ArrayList<String> genres) {
+        this.genres = genres;
+    }
+
     public String getId() {
         return id;
     }
@@ -134,13 +138,24 @@ public abstract class BaseContent extends BaseObservable implements Serializable
 
     public String getRuntime() {return "";}
 
+    public ArrayList<String> getGenresList() {
+        return genres;
+    }
+
     public String getGenres() {
+        return getGenres("/ ");
+    }
+
+    public String getGenres(String divider) {
         StringBuilder text = new StringBuilder();
+        if (this.genres == null) {
+            return "";
+        }
         for (int i = 0; i < genres.size(); i++) {
             String genre = genres.get(i).substring(0, 1).toUpperCase() + genres.get(i).substring(1);
             text.append(genre);
             if (i != genres.size()-1) {
-                text.append(", ");
+                text.append(String.format("%s", divider));
             }
         }
         return text.toString();

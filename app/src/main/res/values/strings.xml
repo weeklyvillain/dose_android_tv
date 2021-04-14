@@ -41,4 +41,5 @@
     <string name="server_choice_breadcrumb">Step 3: Choose server</string>
     <string name="server_choice_description">Choose your primary content server</string>
     <string name="title_activity_browse">BrowseActivity</string>
+    <string name="title_activity_search">SearchActivity</string>
 </resources>

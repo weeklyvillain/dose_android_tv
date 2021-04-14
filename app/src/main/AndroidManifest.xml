@@ -3,9 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.dose.dose">
 
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-
-    <uses-feature android:name="android.hardware.type.watch" />
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -25,18 +22,19 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Dose">
 
-        <!--
-               Set to true if your app is Standalone, that is, it does not require the handheld
-               app to run.
-        -->
+        <activity
+            android:name=".search.SearchActivity"
+            android:label="@string/title_activity_search">
+        </activity>
+
         <meta-data
-            android:name="com.google.android.wearable.standalone"
-            android:value="true" />
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
 
         <activity
             android:name=".BrowseActivity"
-            android:windowSoftInputMode="stateHidden"
-            android:label="@string/title_activity_browse">
+            android:label="@string/title_activity_browse"
+            android:windowSoftInputMode="stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -49,10 +47,8 @@
         <activity
             android:name=".details.MovieDetailsActivity"
             android:theme="@android:style/Theme.NoTitleBar" />
-
         <activity android:name=".LoginActivity" />
         <activity android:name=".VideoActivity" />
-
         <activity android:name=".BrowseErrorActivity" />
     </application>
 
