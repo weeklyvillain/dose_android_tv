@@ -52,7 +52,7 @@ public class ShowAPIClient extends DoseAPIClient {
         String url = String.format("/api/series/%s?token=", id);
         JSONArray result;
         try {
-            result = super.contentServerRequest(url).getJSONArray("seasons");
+            result = super.contentServerRequest(url).getJSONObject("result").getJSONArray("seasons");
         } catch(Exception e) {
             e.printStackTrace();
             result = new JSONArray();

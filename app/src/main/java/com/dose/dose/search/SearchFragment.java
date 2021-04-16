@@ -86,7 +86,6 @@ public class SearchFragment extends SearchSupportFragment implements SearchSuppo
 
     private void setupListener() {
         searchListener = result -> {
-            HeaderItem header;
             CardPresenter cardPresenter = new CardPresenter();
             int rows = 0;
 
@@ -100,7 +99,7 @@ public class SearchFragment extends SearchSupportFragment implements SearchSuppo
             }
 
             if (movieList.length() != 0) {
-                header = new HeaderItem(rows++, "Movies");
+                final HeaderItem header = new HeaderItem(rows++, "Movies");
                 ArrayObjectAdapter movies = new ArrayObjectAdapter(cardPresenter);
 
                 for (int i = 0; i < movieList.length(); i++) {
@@ -117,11 +116,11 @@ public class SearchFragment extends SearchSupportFragment implements SearchSuppo
                         e.printStackTrace();
                     }
                 }
-                rowsAdapter.add(new ListRow(header, movies));
+                requireActivity().runOnUiThread(() -> rowsAdapter.add(new ListRow(header, movies)));
             }
 
             if (showList.length() != 0) {
-                header = new HeaderItem(rows+1, "Shows");
+                final HeaderItem header = new HeaderItem(rows+1, "Shows");
                 ArrayObjectAdapter shows = new ArrayObjectAdapter(cardPresenter);
 
                 for (int i = 0; i < showList.length(); i++) {
@@ -138,7 +137,8 @@ public class SearchFragment extends SearchSupportFragment implements SearchSuppo
                         e.printStackTrace();
                     }
                 }
-                rowsAdapter.add(new ListRow(header, shows));
+                requireActivity().runOnUiThread(() -> rowsAdapter.add(new ListRow(header, shows)));
+
             }
 
 

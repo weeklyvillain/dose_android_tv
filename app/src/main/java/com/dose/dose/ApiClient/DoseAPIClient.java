@@ -330,7 +330,6 @@ public abstract class DoseAPIClient {
             }
             Log.i("STATUS", String.valueOf(conn.getResponseCode()));
             Log.i("MSG" , conn.getResponseMessage());
-            //Log.i("RESPONSE: ", jsonObject.toString());
             conn.disconnect();
 
             return jsonObject;

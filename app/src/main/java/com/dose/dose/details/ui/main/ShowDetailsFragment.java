@@ -102,24 +102,16 @@ public class ShowDetailsFragment extends Fragment {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         recyclerView.setLayoutManager(linearLayoutManager);
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    List<Season> seasons = MovieList.setupSeasons(showAPIClient, show);
-                    adapter = new SeasonAdapter(getContext(), seasons);
-                    Log.i(TAG, seasons.toString());
+        Thread thread = new Thread(() -> {
+            try {
+                List<Season> seasons = MovieList.setupSeasons(showAPIClient, show);
+                adapter = new SeasonAdapter(getContext(), seasons);
+                Log.i(TAG, seasons.toString());
 
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            recyclerView.setAdapter(adapter);
-                        }
-                    });
+                requireActivity().runOnUiThread(() -> recyclerView.setAdapter(adapter));
 
-                } catch(Exception e) {
-                    e.printStackTrace();
-                }
+            } catch(Exception e) {
+                e.printStackTrace();
             }
         });
         thread.start();
