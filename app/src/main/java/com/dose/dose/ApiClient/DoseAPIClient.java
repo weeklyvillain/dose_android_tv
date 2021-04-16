@@ -162,9 +162,9 @@ public abstract class DoseAPIClient {
         Log.i("contentTokenValidTo: ", String.valueOf(this.contentServerValidTo));
         Log.i("TimeLeft: ", String.valueOf(currentTime - Long.parseLong(this.mainServerValidTo)));
 
-        boolean newMainTokenNeeded = (currentTime - Integer.parseInt(this.mainServerValidTo)) <= 60;
+        boolean newMainTokenNeeded = (currentTime - Integer.parseInt(this.mainServerValidTo)) >= -60;
         Log.i("newMainTokenNeeded: ", String.valueOf(newMainTokenNeeded));
-        boolean newContentTokenNeeded = (currentTime - Integer.parseInt(this.contentServerValidTo)) <= 60;
+        boolean newContentTokenNeeded = (currentTime - Integer.parseInt(this.contentServerValidTo)) >= -60;
         Log.i("newContentTokenNeeded: ", String.valueOf(newContentTokenNeeded));
 
 
@@ -376,6 +376,11 @@ public abstract class DoseAPIClient {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public JSONObject search(String query) {
+        String url = String.format("%s/api/list/search?query=%s&token=%s", this.movieServerURL, query, this.getMovieJWT());
+        return this.customGet(url, new JSONObject());
     }
 
     public String getMovieJWT() {
