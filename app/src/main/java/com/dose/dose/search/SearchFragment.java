@@ -111,7 +111,6 @@ public class SearchFragment extends SearchSupportFragment implements SearchSuppo
                                 movieList.getJSONObject(i).getString("release_date"),
                                 movieList.getJSONObject(i).getJSONArray("images"),
                                 movieList.getJSONObject(i).getJSONArray("genres"),
-                                movieAPIClient.getMovieJWT(),
                                 0);
                         movies.add(movie);
                     } catch (Exception e) {
@@ -133,7 +132,6 @@ public class SearchFragment extends SearchSupportFragment implements SearchSuppo
                                 showList.getJSONObject(i).getString("first_air_date"),
                                 showList.getJSONObject(i).getJSONArray("images"),
                                 showList.getJSONObject(i).getJSONArray("genres"),
-                                movieAPIClient.getMovieJWT(),
                                 0);
                         shows.add(show);
                     } catch (Exception e) {

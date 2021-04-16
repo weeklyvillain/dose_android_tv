@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.dose.dose.content.Episode;
+import com.dose.dose.token.TokenHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -14,38 +15,31 @@ import java.util.Locale;
 
 public class ShowAPIClient extends DoseAPIClient {
 
-    public ShowAPIClient(String mainServerURL, String movieServerURL, String mainServerToken, String mainServerRefreshToken, String movieServerToken, String mainServerValidTo, String contentServerValidTo, Context context) {
-        super(mainServerURL, movieServerURL, mainServerToken, mainServerRefreshToken, movieServerToken, mainServerValidTo, contentServerValidTo, context);
+    public ShowAPIClient(String mainServerURL, String movieServerURL, Context context) {
+        super(mainServerURL, movieServerURL, context);
     }
 
     public static ShowAPIClient newInstance(Context context) {
         SharedPreferences settings =
                 context.getSharedPreferences("UserInfo", 0);
-        String JWT = settings.getString("MainServerJWT", "").toString();
-        String mainServerValidTo = settings.getString("MainServerValidTo", "").toString();
         String mainServerURL = settings.getString("MainServerURL", "").toString();
         String contentServerURL = settings.getString("ContentServerURL", "").toString();
-        String contentServerJWT = settings.getString("ContentServerJWT", "").toString();
-        String contentServerValidTo = settings.getString("ContentServerValidTo", "").toString();
-        String mainServerRefreshToken = settings.getString("MainServerRefreshToken", "");
 
-
-        return new ShowAPIClient(mainServerURL, contentServerURL, JWT, mainServerRefreshToken, contentServerJWT, mainServerValidTo, contentServerValidTo, context);
+        return new ShowAPIClient(mainServerURL, contentServerURL, context);
     }
 
     @Override
     public String getPlaybackURL(String id, int startPos, String res) {
         getNewTokensIfNeeded();
-        Log.i("PlaybackURL: ", this.movieServerURL + String.format("/api/video/%s?type=serie&token=%s&start=%d&quality=%s", id, super.getMovieJWT(), startPos, res));
-        return this.movieServerURL + String.format("/api/video/%s?type=serie&token=%s&start=%d&quality=%s", id, super.getMovieJWT(), startPos, res);
+        Log.i("PlaybackURL: ", String.format(Locale.US, "%s/api/video/%s?type=serie&token=%s&start=%d&quality=%s", this.movieServerURL, id, TokenHandler.Tokenhandler(context).getContentToken().getToken(), startPos, res));
+        return String.format(Locale.US, "%s/api/video/%s?type=serie&token=%s&start=%d&quality=%s", this.movieServerURL, id, TokenHandler.Tokenhandler(context).getContentToken().getToken(), startPos, res);
     }
 
     @Override
     public JSONArray getNewContent() {
-        String url = this.movieServerURL + String.format("/api/series/list?orderby=added_date&limit=20&token=%s", this.movieJWT);
         JSONArray result;
         try {
-            result = super.customGet(url, new JSONObject()).getJSONArray("result");
+            result = super.contentServerRequest("/api/series/list?orderby=added_date&limit=20&token=").getJSONArray("result");
         } catch(Exception e) {
             e.printStackTrace();
             result = new JSONArray();
@@ -55,10 +49,10 @@ public class ShowAPIClient extends DoseAPIClient {
     }
 
     public JSONArray getSeasons(String id) {
-        String url = String.format("%s/api/series/%s?token=%s", super.movieServerURL, id, super.getMovieJWT());
+        String url = String.format("/api/series/%s?token=", id);
         JSONArray result;
         try {
-            result = super.customGet(url, new JSONObject()).getJSONObject("result").getJSONArray("seasons");
+            result = super.contentServerRequest(url).getJSONArray("seasons");
         } catch(Exception e) {
             e.printStackTrace();
             result = new JSONArray();
@@ -68,11 +62,11 @@ public class ShowAPIClient extends DoseAPIClient {
     }
 
     public JSONObject getSeasonInformation(String showId, String season) {
-        String url = String.format("%s/api/series/%s/season/%s?token=%s", super.movieServerURL, showId, season, super.getMovieJWT());
+        String url = String.format("/api/series/%s/season/%s?token=", showId, season);
 
         JSONObject result;
         try {
-            result = super.customGet(url, new JSONObject()).getJSONObject("result");
+            result = super.contentServerRequest(url).getJSONObject("result");
         } catch(Exception e) {
             e.printStackTrace();
             result = new JSONObject();
@@ -83,15 +77,13 @@ public class ShowAPIClient extends DoseAPIClient {
 
     @Override
     public JSONArray getOngoing() {
-        String url = super.movieServerURL + String.format("/api/series/list/ongoing?limit=20&token=%s", this.movieJWT);
-
         JSONObject result;
         JSONArray ongoing;
         JSONArray upcoming;
 
         JSONArray finalResults = new JSONArray();
         try {
-            result = super.customGet(url, new JSONObject());
+            result = super.contentServerRequest("/api/series/list/ongoing?limit=20&token=");
             ongoing = result.getJSONArray("ongoing");
             upcoming = result.getJSONArray("upcoming");
             finalResults.put(0, ongoing);
@@ -109,8 +101,8 @@ public class ShowAPIClient extends DoseAPIClient {
 
     @Override
     public int getDuration(String id) throws Exception {
-        String url = super.movieServerURL + String.format("/api/video/%s/getDuration?type=serie&token=%s", id, super.getMovieJWT());
-        return super.customGet(url, new JSONObject()).getInt("duration");
+        String url = super.movieServerURL + String.format("/api/video/%s/getDuration?type=serie&token=", id);
+        return super.contentServerRequest(url).getInt("duration");
     }
 
     @Override
@@ -120,9 +112,9 @@ public class ShowAPIClient extends DoseAPIClient {
 
     @Override
     public void updateCurrentTime(String id, int time, int videoDuration) {
-        String url = String.format(Locale.US, "%s/api/video/%s/currenttime/set?type=serie&time=%d&videoDuration=%s&token=%s", super.movieServerURL, id, time, videoDuration, super.getMovieJWT());
+        String url = String.format(Locale.US, "/api/video/%s/currenttime/set?type=serie&time=%d&videoDuration=%s&token=", id, time, videoDuration);
         Log.i("UPDATECURRENTTIME: ", url);
-        super.customGet(url, new JSONObject());
+        super.contentServerRequest(url);
     }
 
     @Override
@@ -131,11 +123,11 @@ public class ShowAPIClient extends DoseAPIClient {
     }
 
     public Episode getNextEpisode(Episode episode) {
-        String url = String.format(Locale.US, "%s/api/series/getNextEpisode?serie_id=%s&season=%d&episode=%d&token=%s", super.movieServerURL, episode.getShowId(), episode.getSeasonNumber(), episode.getEpisodeNumber(), super.getMovieJWT());
+        String url = String.format(Locale.US, "/api/series/getNextEpisode?serie_id=%s&season=%d&episode=%d&token=", episode.getShowId(), episode.getSeasonNumber(), episode.getEpisodeNumber());
         Log.i("GETNEXTEPISODE: ", url);
 
         // Get the episode_number and season number for the next episode
-        JSONObject nextEpisodeInfo = super.customGet(url, new JSONObject());
+        JSONObject nextEpisodeInfo = super.contentServerRequest(url);
         boolean foundNextEpisode = false;
         try {
             foundNextEpisode = nextEpisodeInfo.getBoolean("foundEpisode");
@@ -147,13 +139,11 @@ public class ShowAPIClient extends DoseAPIClient {
 
         if (foundNextEpisode) {
             try {
-                url = String.format(Locale.US, "%s/api/series/%s/season/%d/episode/%d?token=%s",
-                        super.movieServerURL,
+                url = String.format(Locale.US, "/api/series/%s/season/%d/episode/%d?token=",
                         episode.getShowId(),
                         nextEpisodeInfo.getInt("season"),
-                        nextEpisodeInfo.getInt("episode"),
-                        super.getMovieJWT());
-                JSONObject fullNextEpisodeJson = super.customGet(url, new JSONObject());
+                        nextEpisodeInfo.getInt("episode"));
+                JSONObject fullNextEpisodeJson = super.contentServerRequest(url);
                 fullNextEpisodeJson = fullNextEpisodeJson.getJSONObject("result");
                 return Episode.newInstance(
                         fullNextEpisodeJson.getString("name"),

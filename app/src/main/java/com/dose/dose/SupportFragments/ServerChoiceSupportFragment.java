@@ -14,6 +14,8 @@ import androidx.leanback.widget.GuidedAction;
 import com.dose.dose.ApiClient.DoseAPIClient;
 import com.dose.dose.ApiClient.RequestNoAuth;
 import com.dose.dose.R;
+import com.dose.dose.token.Token;
+import com.dose.dose.token.TokenHandler;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -123,15 +125,16 @@ public class ServerChoiceSupportFragment extends GuidedStepSupportFragment {
                             Log.i("CONNECT: ", result.toString());
 
                             if (result.getString("status").equals("success")) {
-                                SharedPreferences settings = getActivity().getSharedPreferences("UserInfo", 0);
+                                Token token = new Token(result.getString("token"), result.getDouble("validTo"));
+                                TokenHandler.Tokenhandler(requireContext()).setContentToken(token, requireActivity());
+
+                                SharedPreferences settings = requireActivity().getSharedPreferences("UserInfo", 0);
                                 SharedPreferences.Editor editor = settings.edit();
                                 editor.putString("ContentServerURL", servers.get(i).getString("server_ip"));
-                                editor.putString("ContentServerJWT", result.getString("token"));
-                                editor.putString("ContentServerValidTo", result.getString("validTo"));
-                                editor.commit();
+                                editor.apply();
                                 finishGuidedStepSupportFragments();
                             } else {
-                                getActivity().runOnUiThread(() -> {
+                                requireActivity().runOnUiThread(() -> {
                                     Toast.makeText(getActivity(), "Couldn't validate towards server", Toast.LENGTH_LONG).show();
                                 });
                             }

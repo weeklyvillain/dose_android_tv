@@ -48,7 +48,7 @@ public abstract class BaseContent extends BaseObservable implements Serializable
     public BaseContent() {
     }
 
-    public BaseContent(String id, String title, String overview, String release_date, JSONArray images, JSONArray genres, String JWT, int watchTime) {
+    public BaseContent(String id, String title, String overview, String release_date, JSONArray images, JSONArray genres, int watchTime) {
         this.id = id;
         this.title = title;
         this.overview = overview;

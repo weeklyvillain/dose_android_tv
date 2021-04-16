@@ -15,8 +15,8 @@ import java.io.Serializable;
  */
 public class Movie extends BaseContent implements Serializable {
 
-    public Movie(String id, String title, String overview, String release_date, JSONArray images, JSONArray genres, String JWT, int watchTime) {
-        super(id, title, overview, release_date, images, genres, JWT, watchTime);
+    public Movie(String id, String title, String overview, String release_date, JSONArray images, JSONArray genres, int watchTime) {
+        super(id, title, overview, release_date, images, genres, watchTime);
     }
     public Movie() {
         super();

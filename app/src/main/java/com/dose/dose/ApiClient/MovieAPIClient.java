@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.dose.dose.ApiClient.DoseAPIClient;
+import com.dose.dose.token.TokenHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,39 +16,32 @@ import java.util.Locale;
 
 public class MovieAPIClient extends DoseAPIClient {
 
-    public MovieAPIClient(String mainServerURL, String movieServerURL, String mainServerToken, String mainServerRefreshToken, String movieServerToken, String mainServerValidTo, String contentServerValidTo, Context context) {
-        super(mainServerURL, movieServerURL, mainServerToken, mainServerRefreshToken, movieServerToken, mainServerValidTo, contentServerValidTo, context);
+    public MovieAPIClient(String mainServerURL, String movieServerURL, Context context) {
+        super(mainServerURL, movieServerURL, context);
         Log.i("HAIHAI", movieServerURL);
     }
 
     public static MovieAPIClient newInstance(Context context) {
         SharedPreferences settings =
                 context.getSharedPreferences("UserInfo", 0);
-        String JWT = settings.getString("MainServerJWT", "").toString();
-        String mainServerRefreshToken = settings.getString("MainServerRefreshToken", "");
-        String mainServerValidTo = settings.getString("MainServerValidTo", "").toString();
         String mainServerURL = settings.getString("MainServerURL", "").toString();
         String contentServerURL = settings.getString("ContentServerURL", "").toString();
-        String contentServerJWT = settings.getString("ContentServerJWT", "").toString();
-        String contentServerValidTo = settings.getString("ContentServerValidTo", "").toString();
 
-        return new MovieAPIClient(mainServerURL, contentServerURL, JWT, mainServerRefreshToken, contentServerJWT, mainServerValidTo, contentServerValidTo, context);
+        return new MovieAPIClient(mainServerURL, contentServerURL, context);
     }
 
 
     @Override
     public String getPlaybackURL(String id, int startPos, String res) {
         getNewTokensIfNeeded();
-        return super.movieServerURL + String.format("/api/video/%s?type=movie&token=%s&start=%d&quality=%s", id, super.getMovieJWT(), startPos, res);
+        return String.format(Locale.US, "%s/api/video/%s?type=movie&token=%s&start=%d&quality=%s", super.movieServerURL, id, TokenHandler.Tokenhandler(context).getContentToken().getToken(), startPos, res);
     }
 
     @Override
     public JSONArray getNewContent() {
-        String url = super.movieServerURL + String.format("/api/movies/list?orderby=added_date&limit=20&token=%s", this.movieJWT);
-
         JSONArray result;
         try {
-            result = super.customGet(url, new JSONObject()).getJSONArray("result");
+            result = super.contentServerRequest("/api/movies/list?orderby=added_date&limit=20&token=").getJSONArray("result");
         } catch(Exception e) {
             e.printStackTrace();
             result = new JSONArray();
@@ -58,11 +52,9 @@ public class MovieAPIClient extends DoseAPIClient {
 
 
     public JSONArray getNewReleases() {
-        String url = super.movieServerURL + String.format("/api/movies/list?orderby=release_date&limit=20&token=%s", this.movieJWT);
-
         JSONArray result;
         try {
-            result = super.customGet(url, new JSONObject()).getJSONArray("result");
+            result = super.contentServerRequest("/api/movies/list?orderby=release_date&limit=20&token=").getJSONArray("result");
         } catch(Exception e) {
             e.printStackTrace();
             result = new JSONArray();
@@ -73,11 +65,9 @@ public class MovieAPIClient extends DoseAPIClient {
 
     @Override
     public JSONArray getOngoing() {
-        String url = super.movieServerURL + String.format("/api/movies/list/ongoing?limit=20&token=%s", this.movieJWT);
-
         JSONArray result;
         try {
-            result = super.customGet(url, new JSONObject()).getJSONArray("result");
+            result = super.contentServerRequest("/api/movies/list/ongoing?limit=20&token=").getJSONArray("result");
         } catch(Exception e) {
             e.printStackTrace();
             result = new JSONArray();
@@ -88,11 +78,9 @@ public class MovieAPIClient extends DoseAPIClient {
 
     @Override
     public JSONArray getWatchlist() {
-        String url = super.movieServerURL + String.format("/api/movies/list/watchlist?limit=20&token=%s", this.movieJWT);
-
         JSONArray result;
         try {
-            result = super.customGet(url, new JSONObject()).getJSONArray("result");
+            result = super.contentServerRequest("/api/movies/list/watchlist?limit=20&token=").getJSONArray("result");
         } catch(Exception e) {
             e.printStackTrace();
             result = new JSONArray();
@@ -103,20 +91,20 @@ public class MovieAPIClient extends DoseAPIClient {
 
     @Override
     public int getDuration(String id) throws Exception {
-        String url = super.movieServerURL + String.format("/api/video/%s/getDuration?type=movie&token=%s", id, super.getMovieJWT());
-        return super.customGet(url, new JSONObject()).getInt("duration");
+        String url = String.format("/api/video/%s/getDuration?type=movie&token=", id);
+        return super.contentServerRequest(url).getInt("duration");
     }
 
     @Override
     public void updateCurrentTime(String id, int time, int videoDuration) {
-        String url = String.format(Locale.US, "%s/api/video/%s/currenttime/set?type=movie&time=%d&videoDuration=%s&token=%s", super.movieServerURL, id, time, videoDuration, super.getMovieJWT());
+        String url = String.format(Locale.US, "/api/video/%s/currenttime/set?type=movie&time=%d&videoDuration=%s&token=", id, time, videoDuration);
         Log.i("UPDATECURRENTTIME: ", url);
-        super.customGet(url, new JSONObject());
+        super.contentServerRequest(url);
     }
 
     @Override
     public JSONArray getByGenre(String genre) throws JSONException {
-        String url = String.format(Locale.US, "%s/api/movies/list/genre/%s?token=%s", super.movieServerURL, genre, super.getMovieJWT());
-        return super.customGet(url, new JSONObject()).getJSONArray("result");
+        String url = String.format(Locale.US, "/api/movies/list/genre/%s?token=", genre);
+        return super.contentServerRequest(url).getJSONArray("result");
     }
 }

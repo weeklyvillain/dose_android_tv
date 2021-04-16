@@ -91,7 +91,7 @@ public class MovieDetailsFragment extends Fragment {
 
     private void setupImages(View view) {
         ImageView posterImage = (ImageView)view.findViewById(R.id.moviePoster);
-        Glide.with(getContext())
+        Glide.with(requireContext())
                 .load(movie.getPosterImage(true))
                 .into(posterImage);
 
@@ -108,7 +108,7 @@ public class MovieDetailsFragment extends Fragment {
                 try {
                     movie.setDuration(movieAPIClient.getDuration(movie.getId()));
                     TextView durationTextView = view.findViewById(R.id.movieRuntime);
-                    getActivity().runOnUiThread(new Runnable() {
+                    requireActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             durationTextView.setText(movie.getReadableDuration());

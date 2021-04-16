@@ -15,6 +15,8 @@ import androidx.leanback.widget.GuidedAction;
 import com.dose.dose.ApiClient.DoseAPIClient;
 import com.dose.dose.ApiClient.RequestNoAuth;
 import com.dose.dose.R;
+import com.dose.dose.token.Token;
+import com.dose.dose.token.TokenHandler;
 
 import org.json.JSONObject;
 
@@ -59,7 +61,7 @@ public class ConnectSupportFragment extends GuidedStepSupportFragment {
         super.onGuidedActionClicked(action);
 
         if (action.getId() == CONTINUE) {
-            SharedPreferences settings = getActivity().getSharedPreferences("UserInfo", 0);
+            SharedPreferences settings = requireActivity().getSharedPreferences("UserInfo", 0);
             String mainServerURL = settings.getString("MainServerURL", "").toString();
             String code = String.valueOf(codeAction.getTitle());
             String url = String.format("%s/api/auth/tv/registerCode?code=%s", mainServerURL, code);
@@ -70,16 +72,16 @@ public class ConnectSupportFragment extends GuidedStepSupportFragment {
                     JSONObject authResult = RequestNoAuth.get(url);
                     try {
                         if (authResult.getString("status").equals("success")) {
-                            SharedPreferences.Editor editor = settings.edit();
-                            editor.putString("MainServerJWT", authResult.getString("token"));
-                            editor.putString("MainServerRefreshToken", authResult.getString("refreshToken"));
-                            editor.putString("MainServerValidTo", authResult.getString("validTo"));
-                            editor.commit();
+                            Token token = new Token(authResult.getString("token"),
+                                                    authResult.getString("refreshToken"),
+                                                    authResult.getDouble("validTo"));
+                            TokenHandler tokenHandler = TokenHandler.Tokenhandler(requireContext());
+                            tokenHandler.setMainToken(token, requireActivity());
 
                             FragmentManager fm = getFragmentManager();
                             GuidedStepSupportFragment.add(fm, new ServerChoiceSupportFragment());
                         } else {
-                            getActivity().runOnUiThread(() -> {
+                            requireActivity().runOnUiThread(() -> {
                                 Toast.makeText(getActivity(), "Invalid code", Toast.LENGTH_LONG).show();
                             });
                         }
