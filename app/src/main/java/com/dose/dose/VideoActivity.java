@@ -1,6 +1,10 @@
 package com.dose.dose;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.leanback.widget.BrowseFrameLayout;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -9,6 +13,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -29,12 +35,22 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.util.Util;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-public class VideoActivity extends Activity {
+import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.net.ssl.HttpsURLConnection;
+
+
+public class VideoActivity extends FragmentActivity implements Resolution {
     //private static VideoView videoview;
     public static String TYPE = "Type";
     public static String MOVIE = "Movie";
@@ -45,6 +61,7 @@ public class VideoActivity extends Activity {
     private BaseContent selectedContent;
     private Type selectedType;
     private boolean continueWatching;
+
     public enum Type {
         EPISODE,
         MOVIE
@@ -82,6 +99,11 @@ public class VideoActivity extends Activity {
     private final Handler currentTimeHandler = new Handler();
 
     private static final int CURRENT_TIME_UPDATE_FREQ = 10;
+
+    private ResolutionFragment resolutionFragment = null;
+    private FragmentManager fragmentManager = null;
+    private FragmentTransaction fragmentTransaction;
+    private String currentResolution;
 
     private final Runnable currentTimeUpdater = new Runnable() {
         @Override
@@ -140,6 +162,17 @@ public class VideoActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video);
 
+        if (fragmentManager == null) {
+            fragmentManager = getSupportFragmentManager();
+        }
+
+        try {
+            HttpsURLConnection.setDefaultSSLSocketFactory(new CustomSSLSocketFactory());
+        } catch(Exception e) {
+            e.printStackTrace();
+            Log.i("OH", "NOO");
+        }
+
         playerView = findViewById(R.id.player_view);
         currentTime = findViewById(R.id.currentTime);
         durationTextView = findViewById(R.id.duration);
@@ -169,21 +202,26 @@ public class VideoActivity extends Activity {
             apiClient = ShowAPIClient.newInstance(this);
         }
 
+        setupSeekbar();
+        setupVideo();
+        currentTimeHandler.post(currentTimeUpdater);
+
+        getResolutionAndStartVideo();
         setDuration();
         if (selectedType == Type.EPISODE) {
             setNextEpisode();
         }
-        setupSeekbar();
-        setupVideo();
-        timeAtSeek = continueWatching ? selectedContent.getWatchTime() : 0;
-        // Seek starts the video
-        seek(timeAtSeek);
-        currentTimeHandler.post(currentTimeUpdater);
+
     }
 
     @Override
     public void onBackPressed() {
-        if (controlsVisible) {
+        if (anyFragmentOpen()) {
+            if (resolutionFragment != null) {
+                fragmentManager.beginTransaction().remove(resolutionFragment).commit();
+                resolutionFragment = null;
+            }
+        } else if (controlsVisible) {
             controlsLayout.setVisibility(View.INVISIBLE);
             controlsVisible = false;
         } else {
@@ -195,6 +233,10 @@ public class VideoActivity extends Activity {
             player.stop();
             super.onBackPressed();
         }
+    }
+
+    private boolean anyFragmentOpen() {
+        return resolutionFragment != null;
     }
 
     public void togglePlay(View view) {
@@ -215,8 +257,8 @@ public class VideoActivity extends Activity {
         DefaultHttpDataSourceFactory httpDataSourceFactory = new DefaultHttpDataSourceFactory(
                 userAgent,
                 null /* listener */,
-                100000,
-                100000,
+                0,
+                0,
                 true /* allowCrossProtocolRedirects */
         );
 
@@ -226,7 +268,7 @@ public class VideoActivity extends Activity {
                 .createMediaSource(
                         MediaItem.fromUri(
                                 Uri.parse(
-                                        apiClient.getPlaybackURL(selectedContent.getId(), seekTo, "1080P")
+                                        apiClient.getPlaybackURL(selectedContent.getId(), seekTo, currentResolution)
                                 )
                         )
                 );
@@ -283,7 +325,7 @@ public class VideoActivity extends Activity {
     }
 
     private void setupVideo() {
-        DefaultLoadControl loadControl = new DefaultLoadControl.Builder().setBufferDurationsMs(3000, 3600001, 2500, 2500).build();
+        DefaultLoadControl loadControl = new DefaultLoadControl.Builder().setBufferDurationsMs(999999999, 999999999, 2500, 2500).build();
         // TODO: We have to add error handler since we don't retry after timeout. App will just crash
         player = new SimpleExoPlayer.Builder(this)
                 .setLoadControl(loadControl)
@@ -337,13 +379,48 @@ public class VideoActivity extends Activity {
         thread.start();
     }
 
-    private void setNextEpisode() {
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                nextEpisode = ((ShowAPIClient) apiClient).getNextEpisode((Episode) selectedContent);
-                foundNextEpisode = nextEpisode != null;
+    private void getResolutionAndStartVideo() {
+        new Thread(() -> {
+            JSONObject result = apiClient.getResolution(selectedContent.getId());
+            try {
+                boolean directPlay = result.getBoolean("directplay");
+                JSONArray received_resolutions = result.getJSONArray("resolutions");
+                ArrayList<String> resolutions = new ArrayList<>();
+                if (directPlay) {
+                    resolutions.add("directplay");
+                }
+                for (int i = 0; i < received_resolutions.length(); i++) {
+                    resolutions.add(received_resolutions.get(i).toString());
+                }
+                currentResolution = resolutions.get(0);
+                selectedContent.setAvailableResolutions(resolutions);
+
+
+                // Start video
+                timeAtSeek = continueWatching ? selectedContent.getWatchTime() : 0;
+                // Seek starts the video
+                runOnUiThread(() -> {
+                    seek(timeAtSeek);
+                });
+            } catch (Exception e) {
+                e.printStackTrace();;
             }
+        }).start();
+    }
+
+    public void openResolutions(View view) {
+        if (resolutionFragment == null) {
+            resolutionFragment = new ResolutionFragment(selectedContent.getAvailableResolutions(), this);
+            fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.add(R.id.contentFragment, resolutionFragment).commit();
+            findViewById(R.id.contentFragment).requestFocus();
+        }
+    }
+
+    private void setNextEpisode() {
+        Thread thread = new Thread(() -> {
+            nextEpisode = ((ShowAPIClient) apiClient).getNextEpisode((Episode) selectedContent);
+            foundNextEpisode = nextEpisode != null;
         });
         thread.start();
     }
@@ -371,6 +448,15 @@ public class VideoActivity extends Activity {
         timeAtSeek = 0;
         // Seek starts the video and since we changes selectedContent it will start the new episode
         seek(timeAtSeek);
+    }
+
+
+    @Override
+    public void ResolutionSelected(String resolution) {
+        Log.i("Resolution", "Resolution changed to " + resolution);
+        currentResolution = resolution;
+        int playedInSeconds = Math.toIntExact(timeAtSeek + player.getCurrentPosition() / 1000);
+        seek(playedInSeconds);
     }
 
 }

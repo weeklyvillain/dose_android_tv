@@ -44,6 +44,7 @@ public abstract class BaseContent extends BaseObservable implements Serializable
     protected int duration;
     protected float voteAverage;
     protected ArrayList<String> genres;
+    protected ArrayList<String> availableResolutions;
 
     public BaseContent() {
     }
@@ -66,6 +67,14 @@ public abstract class BaseContent extends BaseObservable implements Serializable
             e.printStackTrace();
         }
 
+    }
+
+    public void setAvailableResolutions(ArrayList<String> availableResolutions) {
+        this.availableResolutions = availableResolutions;
+    }
+
+    public ArrayList<String> getAvailableResolutions() {
+        return this.availableResolutions;
     }
 
     public void setGenres(ArrayList<String> genres) {

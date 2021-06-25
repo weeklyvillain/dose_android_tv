@@ -30,6 +30,13 @@ public class MovieAPIClient extends DoseAPIClient {
         return new MovieAPIClient(mainServerURL, contentServerURL, context);
     }
 
+    @Override
+    public JSONObject getResolution(String id) {
+        String url = String.format("/api/video/%s/getResolution?type=movie&token=", id);
+        JSONObject result = super.contentServerRequest(url);
+        Log.i("Resolutions: ", result.toString());
+        return result;
+    }
 
     @Override
     public String getPlaybackURL(String id, int startPos, String res) {

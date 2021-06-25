@@ -101,7 +101,7 @@ public class ShowAPIClient extends DoseAPIClient {
 
     @Override
     public int getDuration(String id) throws Exception {
-        String url = super.movieServerURL + String.format("/api/video/%s/getDuration?type=serie&token=", id);
+        String url = String.format("/api/video/%s/getDuration?type=serie&token=", id);
         return super.contentServerRequest(url).getInt("duration");
     }
 
@@ -120,6 +120,14 @@ public class ShowAPIClient extends DoseAPIClient {
     @Override
     public JSONArray getByGenre(String genre) throws JSONException {
         return null;
+    }
+
+    @Override
+    public JSONObject getResolution(String id) {
+        String url = String.format("/api/video/%s/getResolution?type=serie&token=", id);
+        JSONObject result = super.contentServerRequest(url);
+        Log.i("Resolutions: ", result.toString());
+        return result;
     }
 
     public Episode getNextEpisode(Episode episode) {

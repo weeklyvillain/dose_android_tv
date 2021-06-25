@@ -52,7 +52,7 @@ public class BrowseActivity extends FragmentActivity {
             return Boolean.FALSE;
         }
 
-        return Boolean.TRUE;
+        return Boolean.FALSE;
     }
 
     @Override

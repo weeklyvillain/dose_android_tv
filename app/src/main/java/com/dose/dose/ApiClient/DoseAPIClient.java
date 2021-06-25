@@ -58,6 +58,7 @@ public abstract class DoseAPIClient {
     public abstract JSONArray getWatchlist();
     public abstract void updateCurrentTime(String id, int time, int videoDuration);
     public abstract JSONArray getByGenre(String genre) throws JSONException;
+    public abstract JSONObject getResolution(String id);
 
     protected DoseAPIClient(String mainServerURL, String movieServerURL, Context context) {
         this.mainServerURL = mainServerURL;
