@@ -18,8 +18,8 @@
         android:background="#CC000000"
         android:elevation="10dp"
         android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@+id/controlsLayout"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:layout_editor_absoluteY="264dp">
 
         <TextView
             android:id="@+id/nextEpisodeLabel"
@@ -44,91 +44,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="5dp"
-            android:nextFocusDown="@id/imageButton"
             android:src="@drawable/lb_ic_skip_next"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/controlsLayout"
-        android:layout_width="match_parent"
-        android:layout_height="69dp"
-        android:layout_marginBottom="10dp"
-        android:elevation="10dp"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent">
-
-        <ImageButton
-            android:id="@+id/imageButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:nextFocusLeft="@id/imageButton"
-            android:nextFocusRight="@id/imageButton"
-            android:nextFocusUp="@id/playNextEpisodeBtn"
-            android:nextFocusDown="@id/seekBar"
-            android:onClick="togglePlay"
-            android:src="@drawable/exo_controls_play"
-            app:layout_constraintBottom_toBottomOf="@+id/resolution"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/resolution"
-            app:layout_constraintVertical_bias="1.0"></ImageButton>
-
-        <ImageButton
-            android:id="@+id/subtitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/iq_subtitle"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <ImageButton
-            android:id="@+id/resolution"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:onClick="openResolutions"
-            android:src="@drawable/iq_resolution"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/subtitle" />
-
-        <SeekBar
-            android:id="@+id/seekBar"
-            android:layout_width="0dp"
-            android:layout_height="21dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:nextFocusLeft="@id/seekBar"
-            android:nextFocusRight="@id/seekBar"
-            android:nextFocusUp="@id/imageButton"
-            android:nextFocusDown="@id/seekBar"
-            app:layout_constraintBottom_toBottomOf="@+id/duration"
-            app:layout_constraintEnd_toStartOf="@+id/duration"
-            app:layout_constraintHorizontal_bias="0.555"
-            app:layout_constraintStart_toEndOf="@+id/currentTime"
-            app:layout_constraintTop_toTopOf="@+id/duration" />
-
-        <TextView
-            android:id="@+id/currentTime"
-            android:layout_width="50dp"
-            android:layout_height="20dp"
-            android:ems="10"
-            android:textAlignment="center"
-            app:layout_constraintBottom_toBottomOf="@+id/seekBar"
-            app:layout_constraintStart_toEndOf="@+id/imageButton"
-            app:layout_constraintTop_toTopOf="@+id/seekBar" />
-
-        <TextView
-            android:id="@+id/duration"
-            android:layout_width="50dp"
-            android:layout_height="20dp"
-            android:layout_marginEnd="10dp"
-            android:ems="10"
-            app:layout_constraintBottom_toBottomOf="@+id/resolution"
-            app:layout_constraintEnd_toStartOf="@+id/resolution"
-            app:layout_constraintTop_toTopOf="@+id/resolution" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
     <!--Widget for exoplayer view-->
 
     <com.google.android.exoplayer2.ui.StyledPlayerView
@@ -140,9 +62,81 @@
         tools:layout_editor_absoluteX="239dp"
         tools:layout_editor_absoluteY="58dp">
 
+
+
         <requestFocus />
 
     </com.google.android.exoplayer2.ui.StyledPlayerView>
+
+    <LinearLayout
+        android:id="@+id/videoOverlayLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="invisible">
+
+        <View
+            android:id="@+id/overlay_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"
+            android:background="@drawable/video_overlay_top" />
+
+        <View
+            android:id="@+id/overlay_top"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"
+            android:background="@drawable/video_overlay_bottom" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/videoInformation"
+        android:layout_width="372dp"
+        android:layout_height="106dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="15dp"
+        android:orientation="vertical"
+        android:visibility="invisible"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/videoTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/roboto_light"
+            android:text="Iron Man 3"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/videoDescription"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fontFamily="@font/roboto_light"
+            android:text="Very nice description, very nice movie. I think it's kinda nice but you never know. Kinda cool bla bla bka"
+            android:textSize="10sp" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/pauseIcon"
+        android:layout_width="291dp"
+        android:layout_height="167dp"
+        android:src="@drawable/exo_controls_pause"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <FrameLayout
+        android:id="@+id/controlFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+    </FrameLayout>
 
     <FrameLayout
         android:id="@+id/contentFragment"

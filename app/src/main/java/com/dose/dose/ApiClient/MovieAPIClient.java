@@ -39,9 +39,37 @@ public class MovieAPIClient extends DoseAPIClient {
     }
 
     @Override
-    public String getPlaybackURL(String id, int startPos, String res) {
+    public JSONArray getAudio(String id) {
+        String url = String.format("/api/video/%s/getLanguages?type=movie&token=", id);
+        JSONArray result = super.contentServerRequestArray(url);
+        Log.i("Audio streams: ", result.toString());
+        return result;
+    }
+
+    @Override
+    public JSONObject getSubtitles(String id) {
+        String url = String.format("/api/subtitles/list?content=%s&type=movie&token=", id);
+        JSONObject result = super.contentServerRequest(url);
+        Log.i("Subtitles: ", result.toString());
+        return result;
+    }
+
+    @Override
+    public String getSubtitleUrl(int subtitleId, int currentTime) {
         getNewTokensIfNeeded();
-        return String.format(Locale.US, "%s/api/video/%s?type=movie&token=%s&start=%d&quality=%s", super.movieServerURL, id, TokenHandler.Tokenhandler(context).getContentToken().getToken(), startPos, res);
+        String token = TokenHandler.Tokenhandler(context).getContentToken().getToken();
+        return String.format(Locale.US, "%s/api/subtitles/get?type=movie&id=%d&start=%d&token=%s", super.movieServerURL, subtitleId, currentTime, token);
+    }
+
+    @Override
+    public String getPlaybackURL(String id, int startPos, String res, int audioStream) {
+        getNewTokensIfNeeded();
+
+        String url = String.format(Locale.US, "%s/api/video/%s?type=movie&token=%s&start=%d&quality=%s", super.movieServerURL, id, TokenHandler.Tokenhandler(context).getContentToken().getToken(), startPos, res);
+        if (audioStream != -1) {
+            url = String.format(Locale.US, "%s&audio=%d", url, audioStream);
+        }
+        return url;
     }
 
     @Override

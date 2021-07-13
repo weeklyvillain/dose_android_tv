@@ -29,10 +29,15 @@ public class ShowAPIClient extends DoseAPIClient {
     }
 
     @Override
-    public String getPlaybackURL(String id, int startPos, String res) {
+    public String getPlaybackURL(String id, int startPos, String res, int audioStream) {
         getNewTokensIfNeeded();
-        Log.i("PlaybackURL: ", String.format(Locale.US, "%s/api/video/%s?type=serie&token=%s&start=%d&quality=%s", this.movieServerURL, id, TokenHandler.Tokenhandler(context).getContentToken().getToken(), startPos, res));
-        return String.format(Locale.US, "%s/api/video/%s?type=serie&token=%s&start=%d&quality=%s", this.movieServerURL, id, TokenHandler.Tokenhandler(context).getContentToken().getToken(), startPos, res);
+        String url = String.format(Locale.US, "%s/api/video/%s?type=serie&token=%s&start=%d&quality=%s", this.movieServerURL, id, TokenHandler.Tokenhandler(context).getContentToken().getToken(), startPos, res);
+
+        if (audioStream != -1) {
+            url = String.format(Locale.US, "%s&audio=%d", url, audioStream);
+        }
+        Log.i("PlaybackURL: ", url);
+        return url;
     }
 
     @Override
@@ -128,6 +133,30 @@ public class ShowAPIClient extends DoseAPIClient {
         JSONObject result = super.contentServerRequest(url);
         Log.i("Resolutions: ", result.toString());
         return result;
+    }
+
+    @Override
+    public JSONArray getAudio(String id) {
+
+        String url = String.format("/api/video/%s/getLanguages?type=serie&token=", id);
+        JSONArray result = super.contentServerRequestArray(url);
+        Log.i("Audio streams: ", result.toString());
+        return result;
+    }
+
+    @Override
+    public JSONObject getSubtitles(String id) {
+        String url = String.format("/api/subtitles/list?content=%s&type=serie&token=", id);
+        JSONObject result = super.contentServerRequest(url);
+        Log.i("Resolutions: ", result.toString());
+        return result;
+    }
+
+    @Override
+    public String getSubtitleUrl(int subtitleId, int currentTime) {
+        getNewTokensIfNeeded();
+        String token = TokenHandler.Tokenhandler(context).getContentToken().getToken();
+        return String.format(Locale.US, "%s/api/subtitles/get?type=serie&id=%d&start=%d&token=%s", super.movieServerURL, subtitleId, currentTime, token);
     }
 
     public Episode getNextEpisode(Episode episode) {

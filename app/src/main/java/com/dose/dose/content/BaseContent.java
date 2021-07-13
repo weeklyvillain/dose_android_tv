@@ -2,31 +2,19 @@ package com.dose.dose.content;
 
 import android.util.Log;
 
+import com.dose.dose.controls.ControlSetting;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-
-import android.util.Log;
 
 import androidx.databinding.BaseObservable;
 import androidx.databinding.library.baseAdapters.BR;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.json.JSONArray;
-
-import java.io.Serializable;
 
 
 // TODO: Fix so ids are int
@@ -44,7 +32,9 @@ public abstract class BaseContent extends BaseObservable implements Serializable
     protected int duration;
     protected float voteAverage;
     protected ArrayList<String> genres;
-    protected ArrayList<String> availableResolutions;
+    protected List<ControlSetting> availableResolutions;
+    protected List<ControlSetting> availableAudioStreams;
+    protected List<ControlSetting> availableSubtitles;
 
     public BaseContent() {
     }
@@ -69,11 +59,27 @@ public abstract class BaseContent extends BaseObservable implements Serializable
 
     }
 
-    public void setAvailableResolutions(ArrayList<String> availableResolutions) {
+    public void setAvailableSubtitles(List<ControlSetting> availableSubtitles) {
+        this.availableSubtitles = availableSubtitles;
+    }
+
+    public List<ControlSetting> getAvailableSubtitles() {
+        return availableSubtitles;
+    }
+
+    public void setAvailableAudioStreams(List<ControlSetting> availableAudioStreams) {
+        this.availableAudioStreams = availableAudioStreams;
+    }
+
+    public List<ControlSetting> getAvailableAudioStreams() {
+        return availableAudioStreams;
+    }
+
+    public void setAvailableResolutions(List<ControlSetting> availableResolutions) {
         this.availableResolutions = availableResolutions;
     }
 
-    public ArrayList<String> getAvailableResolutions() {
+    public List<ControlSetting> getAvailableResolutions() {
         return this.availableResolutions;
     }
 

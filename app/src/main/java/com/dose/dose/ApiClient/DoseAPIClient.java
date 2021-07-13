@@ -51,7 +51,7 @@ public abstract class DoseAPIClient {
     protected String movieServerURL;
     protected final Context context;
 
-    public abstract String getPlaybackURL(String id, int startPos, String res);
+    public abstract String getPlaybackURL(String id, int startPos, String res, int audioStream);
     public abstract JSONArray getNewContent();
     public abstract JSONArray getOngoing();
     public abstract int getDuration(String id) throws Exception;
@@ -59,6 +59,9 @@ public abstract class DoseAPIClient {
     public abstract void updateCurrentTime(String id, int time, int videoDuration);
     public abstract JSONArray getByGenre(String genre) throws JSONException;
     public abstract JSONObject getResolution(String id);
+    public abstract JSONArray getAudio(String id);
+    public abstract JSONObject getSubtitles(String id);
+    public abstract String getSubtitleUrl(int subtitleId, int currentTime);
 
     protected DoseAPIClient(String mainServerURL, String movieServerURL, Context context) {
         this.mainServerURL = mainServerURL;
@@ -294,13 +297,21 @@ public abstract class DoseAPIClient {
         return customGet(url);
     }
 
+    protected JSONArray contentServerRequestArray(String url) {
+        getNewTokensIfNeeded();
+        String token = TokenHandler.Tokenhandler(context).getContentToken().getToken();
+
+        url = String.format("%s%s%s", this.movieServerURL, url, token);
+        return customGetJsonArray(url);
+    }
+
     // TODO: Send authentication via bearer instead
-    protected JSONObject mainServerRequest(String url) {
+    protected JSONArray mainServerRequest(String url) {
         getNewTokensIfNeeded();
         String token = TokenHandler.Tokenhandler(context).getMainToken().getToken();
 
         url = String.format("%s%s%s", this.mainServerURL, url, token);
-        return customGet(url);
+        return customGetJsonArray(url);
     }
 
     protected JSONObject customGet(String url) {
@@ -338,6 +349,43 @@ public abstract class DoseAPIClient {
             e.printStackTrace();
         }
         return new JSONObject();
+    }
+
+    protected JSONArray customGetJsonArray(String url) {
+        try {
+            url = URLDecoder.decode(url, "UTF-8");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        getNewTokensIfNeeded();
+        try {
+            URL reqUrl = new URL(url);
+            HttpsURLConnection conn = (HttpsURLConnection) reqUrl.openConnection();
+            conn.setRequestMethod("GET");
+            String responseMsg = "";
+            InputStream in = conn.getInputStream();
+
+            StringBuffer respDataBuf = new StringBuffer();
+            respDataBuf.setLength(0);
+            int b = -1;
+
+            while((b = in.read()) != -1) {
+                respDataBuf.append((char)b);
+            }
+            responseMsg = respDataBuf.toString();
+            JSONArray jsonArray = null;
+            if (!responseMsg.isEmpty()) {
+                jsonArray = new JSONArray(new JSONTokener(responseMsg));
+            }
+            Log.i("STATUS", String.valueOf(conn.getResponseCode()));
+            Log.i("MSG" , conn.getResponseMessage());
+            conn.disconnect();
+
+            return jsonArray;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new JSONArray();
     }
 
     public List<String> getGenres() {

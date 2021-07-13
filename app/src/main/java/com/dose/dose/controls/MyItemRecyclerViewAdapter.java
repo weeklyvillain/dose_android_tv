@@ -1,4 +1,4 @@
-package com.dose.dose;
+package com.dose.dose.controls;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -8,14 +8,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.dose.dose.content.Episode;
+import com.dose.dose.R;
 import com.dose.dose.dummy.DummyContent.DummyItem;
-
-import org.w3c.dom.Text;
+import com.dose.dose.interfaces.SelectedSetting;
+import com.dose.dose.interfaces.VideoControlListInterface;
 
 import java.util.List;
 
@@ -25,12 +24,15 @@ import java.util.List;
  */
 public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecyclerViewAdapter.ViewHolder> {
 
-    private final List<String> mValues;
-    private Resolution resolution;
+    private final List<ControlSetting> mValues;
+    private VideoControlListInterface videoControlListInterface;
+    // Indicates if this instance is changing audio, resolution or subtitle
+    private SelectedSetting selectedSetting;
 
-    public MyItemRecyclerViewAdapter(List<String> items, Resolution resolution) {
+    public MyItemRecyclerViewAdapter(List<ControlSetting> items, SelectedSetting selectedSetting, VideoControlListInterface videoControlListInterface) {
         mValues = items;
-        this.resolution = resolution;
+        this.selectedSetting = selectedSetting;
+        this.videoControlListInterface = videoControlListInterface;
     }
 
     @Override
@@ -47,15 +49,18 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
         super.onViewAttachedToWindow(holder);
     }
 
-    public String getItem(int position) {
+    public ControlSetting getItem(int position) {
         return mValues.get(position);
     }
 
+    public SelectedSetting getSelectedSetting() {
+        return selectedSetting;
+    }
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.mItem = mValues.get(position);
-        holder.mContentView.setText(mValues.get(position));
+        holder.mItem = mValues.get(position).getValue();
+        holder.mContentView.setText(mValues.get(position).getValue());
     }
 
     @Override
@@ -96,8 +101,8 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
         @Override
         public void onClick(View v) {
             Log.i("KLICK", "HEJ");
-            String selectedResolution = getItem(getAdapterPosition());
-            resolution.ResolutionSelected(selectedResolution);
+            ControlSetting selectedValue = getItem(getAdapterPosition());
+            videoControlListInterface.settingSelected(selectedValue, getSelectedSetting());
         }
     }
 }
