@@ -62,6 +62,11 @@ public class MovieAPIClient extends DoseAPIClient {
     }
 
     @Override
+    public String getTrailer(String id) {
+        return String.format("%s/api/trailer/%s?token=%s&type=MOVIE", super.movieServerURL, id, TokenHandler.Tokenhandler(context).getContentToken().getToken());
+    }
+
+    @Override
     public String getPlaybackURL(String id, int startPos, String res, int audioStream) {
         getNewTokensIfNeeded();
 

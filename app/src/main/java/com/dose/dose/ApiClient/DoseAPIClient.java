@@ -62,6 +62,7 @@ public abstract class DoseAPIClient {
     public abstract JSONArray getAudio(String id);
     public abstract JSONObject getSubtitles(String id);
     public abstract String getSubtitleUrl(int subtitleId, int currentTime);
+    public abstract String getTrailer(String id);
 
     protected DoseAPIClient(String mainServerURL, String movieServerURL, Context context) {
         this.mainServerURL = mainServerURL;

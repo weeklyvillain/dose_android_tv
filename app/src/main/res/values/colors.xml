@@ -7,4 +7,5 @@
     <color name="default_background">#D21E1E1E</color>
     <color name="text_shadow">#7F000000</color>
     <color name="black">#000000</color>
+    <color name="main">#020608</color>
 </resources>

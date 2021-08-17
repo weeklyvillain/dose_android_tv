@@ -14,12 +14,21 @@
         android:layout_height="match_parent"
         tools:context=".BrowseHeaderFragment">
 
+        <VideoView
+            android:id="@+id/videoView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_centerInParent="true"
+            />
+
         <ImageView
             android:id="@+id/header_backdrop"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            />
+            android:visibility="gone" />
         <View
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -36,7 +45,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="52dp"
             android:layout_marginTop="136dp"
-            android:fontFamily="@font/roboto_light"
+            android:fontFamily="@font/syncopate_bold"
             android:text="@{selected.getTitle()}"
             android:textSize="30sp"
             android:textStyle="bold"
@@ -47,10 +56,10 @@
             android:id="@+id/header_description"
             android:layout_width="401dp"
             android:layout_height="85dp"
-            android:layout_marginStart="5dp"
             android:layout_marginTop="10dp"
             android:fontFamily="@font/roboto_light"
             android:text="@{selected.getDescription()}"
+            android:textSize="12sp"
             app:layout_constraintStart_toStartOf="@+id/header_title"
             app:layout_constraintTop_toBottomOf="@+id/header_genres" />
 
@@ -58,7 +67,6 @@
             android:id="@+id/header_genres"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
             android:fontFamily="@font/roboto_light"
             android:text="@{selected.getGenres()}"
             app:layout_constraintStart_toStartOf="@+id/header_title"

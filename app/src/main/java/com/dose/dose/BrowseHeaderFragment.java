@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -23,6 +24,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.VideoView;
 
 import com.bumptech.glide.GenericTransitionOptions;
 import com.bumptech.glide.Glide;
@@ -33,6 +35,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.dose.dose.ApiClient.MovieAPIClient;
 import com.dose.dose.content.BaseContent;
 import com.dose.dose.content.Episode;
 import com.dose.dose.content.Movie;
@@ -50,6 +53,7 @@ public class BrowseHeaderFragment extends Fragment {
     private BaseContent selected;
     private ImageView backdrop;
     private ImageButton searchBtn;
+    private VideoView video;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -68,6 +72,14 @@ public class BrowseHeaderFragment extends Fragment {
         View view = binding.getRoot();
         binding.setSelected(selected);
         backdrop = view.findViewById(R.id.header_backdrop);
+        video = view.findViewById(R.id.videoView2);
+
+        video.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                mp.setLooping(true);
+            }
+        });
 
         searchBtn = view.findViewById(R.id.search_button);
         searchBtn.setOnClickListener(v -> {
@@ -88,10 +100,23 @@ public class BrowseHeaderFragment extends Fragment {
             selected.setGenres(item.getGenresList());
             selected.setReleaseDate(String.format(" | %s", item.getReleaseDate()));
 
-            Glide.with(getContext())
-                    .load(item.getCardImageUrl(true))
-                    .transition(DrawableTransitionOptions.withCrossFade(250))
-                    .into(backdrop);
+            if (item instanceof Movie && item.getId() != null) {
+                backdrop.setVisibility(View.INVISIBLE);
+                video.setVisibility(View.VISIBLE);
+                MovieAPIClient movieAPIClient = MovieAPIClient.newInstance(this.getContext());
+                String trailerUrl = movieAPIClient.getTrailer(item.getId());
+                Log.i("Trailer: ", trailerUrl);
+                video.setVideoPath(trailerUrl);
+                video.start();
+            } else {
+                video.stopPlayback();
+                video.setVisibility(View.INVISIBLE);
+                backdrop.setVisibility(View.VISIBLE);
+                Glide.with(getContext())
+                        .load(item.getCardImageUrl(true))
+                        .transition(DrawableTransitionOptions.withCrossFade(250))
+                        .into(backdrop);
+            }
         });
 
         return view;

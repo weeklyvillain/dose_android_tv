@@ -159,6 +159,11 @@ public class ShowAPIClient extends DoseAPIClient {
         return String.format(Locale.US, "%s/api/subtitles/get?type=serie&id=%d&start=%d&token=%s", super.movieServerURL, subtitleId, currentTime, token);
     }
 
+    @Override
+    public String getTrailer(String id) {
+        return null;
+    }
+
     public Episode getNextEpisode(Episode episode) {
         String url = String.format(Locale.US, "/api/series/getNextEpisode?serie_id=%s&season=%d&episode=%d&token=", episode.getShowId(), episode.getSeasonNumber(), episode.getEpisodeNumber());
         Log.i("GETNEXTEPISODE: ", url);
