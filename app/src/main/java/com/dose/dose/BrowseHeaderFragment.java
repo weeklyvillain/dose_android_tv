@@ -52,6 +52,7 @@ import jp.wasabeef.glide.transformations.BlurTransformation;
 public class BrowseHeaderFragment extends Fragment {
     private BaseContent selected;
     private ImageView backdrop;
+    private ImageView logo;
     private ImageButton searchBtn;
     private VideoView video;
 
@@ -72,14 +73,15 @@ public class BrowseHeaderFragment extends Fragment {
         View view = binding.getRoot();
         binding.setSelected(selected);
         backdrop = view.findViewById(R.id.header_backdrop);
+        logo = view.findViewById(R.id.headerLogo);
         video = view.findViewById(R.id.videoView2);
 
-        video.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-                mp.setLooping(true);
-            }
+        video.setOnErrorListener((mp, what, extra) -> {
+            Log.d("Video", "Error");
+            return true;
         });
+
+        video.setOnPreparedListener(mp -> mp.setLooping(true));
 
         searchBtn = view.findViewById(R.id.search_button);
         searchBtn.setOnClickListener(v -> {
@@ -95,10 +97,23 @@ public class BrowseHeaderFragment extends Fragment {
 
         SelectedViewModel model = new ViewModelProvider(requireActivity()).get(SelectedViewModel.class);
         model.getSelected().observe(getViewLifecycleOwner(), item -> {
-            selected.setTitle(item.getTitle());
             selected.setDescription(item.getDescription());
             selected.setGenres(item.getGenresList());
             selected.setReleaseDate(String.format(" | %s", item.getReleaseDate()));
+
+            if (item.gotLogo()) {
+                logo.setVisibility(View.VISIBLE);
+                selected.setTitle("");
+                Glide.with(getContext())
+                        .load(item.getLogoImageUrl(true))
+                        .transition(DrawableTransitionOptions.withCrossFade(250))
+                        .override(500, 300)
+                        .into(logo);
+            } else {
+                selected.setTitle(item.getTitle());
+                logo.setVisibility(View.GONE);
+            }
+
 
             if (item instanceof Movie && item.getId() != null) {
                 backdrop.setVisibility(View.INVISIBLE);

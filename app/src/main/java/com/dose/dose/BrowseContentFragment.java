@@ -3,6 +3,8 @@ package com.dose.dose;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.leanback.app.RowsSupportFragment;
@@ -24,6 +26,7 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 
 import com.dose.dose.ApiClient.MovieAPIClient;
 import com.dose.dose.ApiClient.ShowAPIClient;
@@ -80,7 +83,24 @@ public class BrowseContentFragment extends RowsSupportFragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        view.getViewTreeObserver().addOnWindowFocusChangeListener(new ViewTreeObserver.OnWindowFocusChangeListener() {
+            @Override
+            public void onWindowFocusChanged(final boolean hasFocus) {
+                Log.d("NUHARVIFOCUS", "JAPP: " + hasFocus);
+                // do your stuff here
+            }
+        });
+    }
+
+    @Override
+    public void onResume() {
+        Log.d("ONRESUMEHERE", "YES");
+        super.onResume();
     }
 
     private void setupGenres() {
@@ -106,6 +126,7 @@ public class BrowseContentFragment extends RowsSupportFragment {
         }).start();
     }
 
+
     private void loadGenres() {
         for (Pair<HeaderItem, ArrayObjectAdapter> genre : movieGenres) {
             new Thread(() -> {
@@ -122,6 +143,7 @@ public class BrowseContentFragment extends RowsSupportFragment {
     private void setupRows() {
         cardPresenter = new CardPresenter();
         listRowPresenter = new ListRowPresenter(FocusHighlight.ZOOM_FACTOR_LARGE, true);
+        listRowPresenter.setRowHeight(250);
         rowsAdapter = new ArrayObjectAdapter(listRowPresenter);
         HeaderItem header;
 

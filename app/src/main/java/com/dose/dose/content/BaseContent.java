@@ -212,6 +212,41 @@ public abstract class BaseContent extends BaseObservable implements Serializable
         return imageURL;
     }
 
+    public String getLogoImageUrl(boolean originalQuality) {
+        Gson g = new Gson();
+        JsonArray arr = g.fromJson(images, JsonArray.class);
+        String imageURL = "";
+        Boolean active;
+        String type;
+        for (int i = 0; i < arr.size(); i++) {
+            JsonObject jObj = (JsonObject) arr.get(i);
+            active = jObj.get("active").getAsBoolean();
+            type = jObj.get("type").getAsString();
+            if(active && type.equals("LOGO")) {
+                imageURL = String.format("https://image.tmdb.org/t/p/%s/%s", originalQuality ? "original" : "w500", jObj.get("path").getAsString());
+                break;
+            }
+        }
+        return imageURL;
+    }
+
+    public Boolean gotLogo() {
+        Gson g = new Gson();
+        JsonArray arr = g.fromJson(images, JsonArray.class);
+        Boolean active;
+        String type;
+        for (int i = 0; i < arr.size(); i++) {
+            JsonObject jObj = (JsonObject) arr.get(i);
+            active = jObj.get("active").getAsBoolean();
+            type = jObj.get("type").getAsString();
+            String path = jObj.get("path").getAsString();
+            if(active && type.equals("LOGO") && !path.equals("no_image")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void setImages(JsonArray images) {
         Gson g = new Gson();
 

@@ -17,11 +17,13 @@
         <VideoView
             android:id="@+id/videoView2"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:layout_centerInParent="true"
-            />
+            android:focusable="false"
+            tools:layout_editor_absoluteX="0dp"
+            tools:layout_editor_absoluteY="0dp" />
 
         <ImageView
             android:id="@+id/header_backdrop"
@@ -29,80 +31,112 @@
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
             android:visibility="gone" />
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/trending_gradient_shape_2" />
+
+
         <View
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@drawable/trending_gradient_shape" />
 
 
+        <ImageView
+            android:id="@+id/headerLogo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="25dp"
+            app:layout_constraintStart_toStartOf="@+id/header_title"
+            app:layout_constraintTop_toTopOf="@+id/videoView2" />
+
         <TextView
             android:id="@+id/header_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="52dp"
-            android:layout_marginTop="136dp"
+            android:layout_marginTop="25dp"
             android:fontFamily="@font/syncopate_bold"
+            android:shadowColor="@color/text_shadow"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="2"
             android:text="@{selected.getTitle()}"
+            android:textColor="@color/exo_white"
             android:textSize="30sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/header_backdrop" />
 
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrierEnd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="header_title,headerLogo" />
+
         <TextView
             android:id="@+id/header_description"
             android:layout_width="401dp"
-            android:layout_height="85dp"
-            android:layout_marginTop="10dp"
-            android:fontFamily="@font/roboto_light"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/roboto_bold"
+            android:maxHeight="60dp"
+            android:shadowColor="@color/text_shadow"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="2"
             android:text="@{selected.getDescription()}"
+            android:textColor="@color/exo_white"
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="@+id/header_title"
-            app:layout_constraintTop_toBottomOf="@+id/header_genres" />
-
-        <TextView
-            android:id="@+id/header_genres"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/roboto_light"
-            android:text="@{selected.getGenres()}"
-            app:layout_constraintStart_toStartOf="@+id/header_title"
-            app:layout_constraintTop_toBottomOf="@+id/header_title" />
+            app:layout_constraintTop_toBottomOf="@+id/barrierEnd" />
 
         <TextView
             android:id="@+id/header_release_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:fontFamily="@font/roboto_light"
+            android:fontFamily="@font/roboto_bold"
+            android:shadowColor="@color/text_shadow"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="2"
             android:text="@{selected.getReleaseDate()}"
-            app:layout_constraintStart_toEndOf="@+id/header_genres"
-            app:layout_constraintTop_toTopOf="@+id/header_genres" />
-
-        <ImageView
-            android:id="@+id/imageView3"
-            android:layout_width="226dp"
-            android:layout_height="41dp"
-            android:layout_marginTop="15dp"
-            android:layout_marginEnd="15dp"
-            android:adjustViewBounds="true"
-            android:src="@drawable/dose"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:textColor="@color/exo_white"
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="@+id/header_description"
+            app:layout_constraintTop_toBottomOf="@+id/header_description" />
 
         <ImageButton
             android:id="@+id/search_button"
             android:layout_width="55dp"
             android:layout_height="55dp"
-            android:layout_marginTop="15dp"
             android:background="?android:selectableItemBackground"
             android:src="@drawable/lb_ic_in_app_search"
+            android:visibility="gone"
             app:layout_constraintEnd_toStartOf="@+id/header_title"
             app:layout_constraintStart_toStartOf="@+id/header_title"
-            app:layout_constraintTop_toTopOf="@+id/imageView3" />
+            tools:layout_editor_absoluteY="30dp" />
+
+        <ImageButton
+            android:id="@+id/search_button2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:background="?android:selectableItemBackground"
+            android:src="@drawable/exo_ic_play_circle_filled"
+            app:layout_constraintStart_toStartOf="@+id/header_description"
+            android:focusable="true"
+            app:layout_constraintTop_toBottomOf="@+id/header_description">
+            <requestFocus />
+        </ImageButton>
+
+        <ImageButton
+            android:id="@+id/search_button3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:background="?android:selectableItemBackground"
+            android:src="@android:drawable/ic_dialog_info"
+            app:layout_constraintBottom_toBottomOf="@+id/search_button2"
+            app:layout_constraintStart_toEndOf="@+id/search_button2"
+            app:layout_constraintTop_toTopOf="@+id/search_button2" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/parent_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/main"
@@ -8,21 +11,30 @@
     android:paddingTop="0dp"
     android:paddingRight="0dp"
     android:paddingBottom="0dp">
+    -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/parent_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
 
     <fragment
         android:id="@+id/headersView"
         android:name="com.dose.dose.BrowseHeaderFragment"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="match_parent" />
 
     <fragment
         android:id="@+id/contentFragment"
         android:name="com.dose.dose.BrowseContentFragment"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/headersView" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_height="280dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="0dp"
+        android:background="@android:color/transparent" />
+</RelativeLayout>
+
+<!--</androidx.constraintlayout.widget.ConstraintLayout> -->
