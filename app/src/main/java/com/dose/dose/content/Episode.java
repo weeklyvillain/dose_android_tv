@@ -33,6 +33,7 @@ public class Episode extends BaseContent implements Serializable {
         this.setDescription(overview);
         setVoteAverage(voteAverage);
         this.currentInfoLevel = InfoLevel.FULL;
+        this.hasValidData = true;
     }
 
     /*
@@ -52,6 +53,8 @@ public class Episode extends BaseContent implements Serializable {
         this.setId(String.valueOf(internalId));
         this.setDescription(overview);
         this.currentInfoLevel = InfoLevel.LIMITED;
+        this.hasValidData = true;
+
     }
 
     @Override

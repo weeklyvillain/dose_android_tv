@@ -10,6 +10,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.graphics.ColorUtils;
 import androidx.databinding.DataBindingUtil;
@@ -54,12 +55,26 @@ public class BrowseHeaderFragment extends Fragment {
     private ImageView backdrop;
     private ImageView logo;
     private ImageButton searchBtn;
+    private ImageButton browsePlayButton;
+    private ImageButton browseInfoButton;
     private VideoView video;
+    private MovieAPIClient movieAPIClient;
+    private Movie randomMovie;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        movieAPIClient = MovieAPIClient.newInstance(getContext());
+        new Thread(() -> {
+            randomMovie = movieAPIClient.getRandom();
+            requireActivity().runOnUiThread(() -> updateHeader(randomMovie, true));
+        }).start();
         super.onCreate(savedInstanceState);
+    }
 
+    @Override
+    public void onResume() {
+        video.start();
+        super.onResume();
     }
 
     @Override
@@ -75,6 +90,15 @@ public class BrowseHeaderFragment extends Fragment {
         backdrop = view.findViewById(R.id.header_backdrop);
         logo = view.findViewById(R.id.headerLogo);
         video = view.findViewById(R.id.videoView2);
+        browsePlayButton = view.findViewById(R.id.browsePlayButton);
+        browseInfoButton = view.findViewById(R.id.browseInfoButton);
+        browsePlayButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), VideoActivity.class);
+            intent.putExtra(VideoActivity.TYPE, VideoActivity.Type.MOVIE);
+            intent.putExtra(VideoActivity.CONTINUE_WATCHING, false);
+            intent.putExtra(VideoActivity.MOVIE, this.randomMovie);
+            startActivity(intent);
+        });
 
         video.setOnErrorListener((mp, what, extra) -> {
             Log.d("Video", "Error");
@@ -97,44 +121,56 @@ public class BrowseHeaderFragment extends Fragment {
 
         SelectedViewModel model = new ViewModelProvider(requireActivity()).get(SelectedViewModel.class);
         model.getSelected().observe(getViewLifecycleOwner(), item -> {
-            selected.setDescription(item.getDescription());
-            selected.setGenres(item.getGenresList());
-            selected.setReleaseDate(String.format(" | %s", item.getReleaseDate()));
-
-            if (item.gotLogo()) {
-                logo.setVisibility(View.VISIBLE);
-                selected.setTitle("");
-                Glide.with(getContext())
-                        .load(item.getLogoImageUrl(true))
-                        .transition(DrawableTransitionOptions.withCrossFade(250))
-                        .override(500, 300)
-                        .into(logo);
-            } else {
-                selected.setTitle(item.getTitle());
-                logo.setVisibility(View.GONE);
-            }
-
-
-            if (item instanceof Movie && item.getId() != null) {
-                backdrop.setVisibility(View.INVISIBLE);
-                video.setVisibility(View.VISIBLE);
-                MovieAPIClient movieAPIClient = MovieAPIClient.newInstance(this.getContext());
-                String trailerUrl = movieAPIClient.getTrailer(item.getId());
-                Log.i("Trailer: ", trailerUrl);
-                video.setVideoPath(trailerUrl);
-                video.start();
-            } else {
-                video.stopPlayback();
-                video.setVisibility(View.INVISIBLE);
-                backdrop.setVisibility(View.VISIBLE);
-                Glide.with(getContext())
-                        .load(item.getCardImageUrl(true))
-                        .transition(DrawableTransitionOptions.withCrossFade(250))
-                        .into(backdrop);
-            }
+            updateHeader(item, false);
         });
 
+
+
+
         return view;
+    }
+
+    private void updateHeader(BaseContent item, boolean isRandomMovie) {
+        // If this was the first selected, don't update the header
+        selected.setDescription(item.getDescription());
+        selected.setGenres(item.getGenresList());
+        selected.setReleaseDate(String.format(" | %s", item.getReleaseDate()));
+
+        if (item.gotLogo()) {
+            logo.setVisibility(View.VISIBLE);
+            selected.setTitle("");
+            Glide.with(getContext())
+                    .load(item.getLogoImageUrl(true))
+                    .transition(DrawableTransitionOptions.withCrossFade(250))
+                    .override(500, 300)
+                    .into(logo);
+        } else {
+            selected.setTitle(item.getTitle());
+            logo.setVisibility(View.GONE);
+        }
+
+
+        if (item instanceof Movie && item.getId() != null) {
+            backdrop.setVisibility(View.INVISIBLE);
+            video.setVisibility(View.VISIBLE);
+            MovieAPIClient movieAPIClient = MovieAPIClient.newInstance(this.getContext());
+            String trailerUrl = movieAPIClient.getTrailer(item.getId());
+            Log.i("Trailer: ", trailerUrl);
+            video.setVideoPath(trailerUrl);
+            video.start();
+        } else {
+            video.stopPlayback();
+            video.setVisibility(View.INVISIBLE);
+            backdrop.setVisibility(View.VISIBLE);
+            Glide.with(getContext())
+                    .load(item.getCardImageUrl(true))
+                    .transition(DrawableTransitionOptions.withCrossFade(250))
+                    .into(backdrop);
+        }
+    }
+
+    public int convertPxToDp(Context context, float px) {
+        return (int) (px / context.getResources().getDisplayMetrics().density);
     }
 
 }

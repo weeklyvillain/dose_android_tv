@@ -35,11 +35,14 @@ public abstract class BaseContent extends BaseObservable implements Serializable
     protected List<ControlSetting> availableResolutions;
     protected List<ControlSetting> availableAudioStreams;
     protected List<ControlSetting> availableSubtitles;
+    protected boolean hasValidData;
 
     public BaseContent() {
+        this.hasValidData = false;
     }
 
     public BaseContent(String id, String title, String overview, String release_date, JSONArray images, JSONArray genres, int watchTime) {
+        this.hasValidData = true;
         this.id = id;
         this.title = title;
         this.overview = overview;
@@ -57,6 +60,10 @@ public abstract class BaseContent extends BaseObservable implements Serializable
             e.printStackTrace();
         }
 
+    }
+
+    public boolean hasValidData() {
+        return this.hasValidData;
     }
 
     public void setAvailableSubtitles(List<ControlSetting> availableSubtitles) {

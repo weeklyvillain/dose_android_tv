@@ -12,6 +12,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:id="@+id/constraintLayout"
         tools:context=".BrowseHeaderFragment">
 
         <VideoView
@@ -105,38 +106,48 @@
 
         <ImageButton
             android:id="@+id/search_button"
-            android:layout_width="55dp"
-            android:layout_height="55dp"
+            android:layout_marginEnd="10dp"
+            android:src="?attr/defaultSearchIcon"
             android:background="?android:selectableItemBackground"
-            android:src="@drawable/lb_ic_in_app_search"
-            android:visibility="gone"
-            app:layout_constraintEnd_toStartOf="@+id/header_title"
-            app:layout_constraintStart_toStartOf="@+id/header_title"
-            tools:layout_editor_absoluteY="30dp" />
+            app:layout_constraintEnd_toStartOf="@+id/settings_button"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            tools:layout_editor_absoluteY="16dp" />
 
         <ImageButton
-            android:id="@+id/search_button2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:id="@+id/settings_button"
+            android:layout_marginEnd="25dp"
+            android:src="@drawable/exo_styled_controls_settings"
+            android:background="?android:selectableItemBackground"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/search_button" />
+
+        <ImageButton
+            android:id="@+id/browsePlayButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_marginTop="28dp"
             android:background="?android:selectableItemBackground"
+            android:focusable="true"
             android:src="@drawable/exo_ic_play_circle_filled"
             app:layout_constraintStart_toStartOf="@+id/header_description"
-            android:focusable="true"
             app:layout_constraintTop_toBottomOf="@+id/header_description">
+
             <requestFocus />
         </ImageButton>
 
         <ImageButton
-            android:id="@+id/search_button3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:id="@+id/browseInfoButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_marginStart="5dp"
             android:background="?android:selectableItemBackground"
             android:src="@android:drawable/ic_dialog_info"
-            app:layout_constraintBottom_toBottomOf="@+id/search_button2"
-            app:layout_constraintStart_toEndOf="@+id/search_button2"
-            app:layout_constraintTop_toTopOf="@+id/search_button2" />
+            app:layout_constraintBottom_toBottomOf="@+id/browsePlayButton"
+            app:layout_constraintStart_toEndOf="@+id/browsePlayButton"
+            app:layout_constraintTop_toTopOf="@+id/browsePlayButton" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

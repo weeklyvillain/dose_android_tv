@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.dose.dose.ApiClient.DoseAPIClient;
+import com.dose.dose.content.Movie;
 import com.dose.dose.token.TokenHandler;
 
 import org.json.JSONArray;
@@ -128,6 +129,35 @@ public class MovieAPIClient extends DoseAPIClient {
         Log.i("MOVIEWATCHLIST: ", result.toString());
         return result;
     }
+
+    public Movie getRandom() {
+        JSONObject result;
+        try {
+            result = super.contentServerRequest("/api/movies/list/random?needTrailer=true&token=").getJSONObject("movie");
+        } catch(Exception e) {
+            e.printStackTrace();
+            result = new JSONObject();
+        }
+
+        Log.i("RANDOMMOVIE: ", result.toString());
+        Movie movie;
+        try {
+            movie = new Movie(
+                    result.getString("id"),
+                    result.getString("title"),
+                    result.getString("overview"),
+                    result.getString("release_date"),
+                    result.getJSONArray("images"),
+                    result.getJSONArray("genres"),
+                    0);
+        } catch (JSONException e) {
+            Log.i("RANDOMMOVIE", "Failed to create movie object");
+            e.printStackTrace();
+            movie = new Movie();
+        }
+        return movie;
+    }
+
 
     @Override
     public int getDuration(String id) throws Exception {

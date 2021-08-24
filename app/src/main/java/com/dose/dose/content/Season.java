@@ -29,6 +29,7 @@ public class Season extends BaseContent implements Serializable {
         this.poster_path = poster_path;
         this.show = show;
         this.images = show.getImages();
+        this.hasValidData = true;
     }
 
     @Override

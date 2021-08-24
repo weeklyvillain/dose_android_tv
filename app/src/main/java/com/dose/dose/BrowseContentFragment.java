@@ -65,6 +65,8 @@ public class BrowseContentFragment extends RowsSupportFragment {
     private static List<Pair<HeaderItem, ArrayObjectAdapter>> movieGenres;
     private MovieAPIClient movieAPIClient;
     private ShowAPIClient showAPIClient;
+    private boolean isFirstSelect = true;
+    private BaseContent currentlySelected;
 
     private SelectedViewModel selectedViewModel;
 
@@ -295,13 +297,19 @@ public class BrowseContentFragment extends RowsSupportFragment {
         };
     }
 
+    public void onFirstPressDown() {
+        selectedViewModel.setSelected(currentlySelected);
+    }
+
     private OnItemViewSelectedListener getItemSelectedListener() {
-        return new OnItemViewSelectedListener() {
-            @Override
-            public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item, RowPresenter.ViewHolder rowViewHolder, Row row) {
-                if (item != null) {
+        return (itemViewHolder, item, rowViewHolder, row) -> {
+            if (item != null) {
+                currentlySelected = (BaseContent) item;
+                if (!isFirstSelect) {
                     Log.i("Selected: ", ((BaseContent)item).getGenres());
                     selectedViewModel.setSelected((BaseContent) item);
+                } else {
+                    isFirstSelect = false;
                 }
             }
         };

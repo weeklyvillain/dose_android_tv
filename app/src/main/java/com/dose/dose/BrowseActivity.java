@@ -38,6 +38,7 @@ import jp.wasabeef.glide.transformations.BlurTransformation;
 
 public class BrowseActivity extends FragmentActivity {
     private boolean fullscreen = true;
+    private boolean hasPressedDown = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -51,12 +52,15 @@ public class BrowseActivity extends FragmentActivity {
         } else {
             setContentView(R.layout.activity_browse);
         }
-
     }
-
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+            hasPressedDown = true;
+            BrowseContentFragment fragment = (BrowseContentFragment) getSupportFragmentManager().findFragmentById(R.id.contentFragment);
+            fragment.onFirstPressDown();
+        }
         if (fullscreen) {
             fullscreen = false;
             /*
